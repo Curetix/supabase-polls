@@ -1,0 +1,29 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - supabase/functions.txt
+      - supabase/functions/**
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_TOKEN }}
+      SUPABASE_PROJECT: ${{ secrets.SUPABASE_PROJECT }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+
+      - name: Link Supabase project
+        run: supabase link --project-ref="$SUPABASE_PROJECT"
+
+      - name: Deploy Functions
+        run: for f in $(cat "supabase/functions.txt") ; do supabase functions deploy $f ; done
