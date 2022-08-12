@@ -1,31 +1,12 @@
-import reactLogo from './assets/react.svg';
-import './App.css';
+import { Grid, Text } from '@chakra-ui/react';
+import ColorModeSwitcher from './components/ColorModeSwitcher';
 
 function App() {
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <p>
-          Edit
-          {' '}
-          <code>src/App.tsx</code>
-          {' '}
-          and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <Grid minH="100vh" p={3}>
+      <ColorModeSwitcher justifySelf="flex-end" />
+      <Text>Hello World!</Text>
+    </Grid>
   );
 }
 
