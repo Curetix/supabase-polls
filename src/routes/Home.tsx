@@ -1,10 +1,11 @@
 import React from 'react';
-import { Container, Text } from '@chakra-ui/react';
+import { Container } from '@chakra-ui/react';
+import PollCreationForm from '../components/PollCreationForm';
 
 export default function Home() {
   return (
     <Container>
-      <Text>Hello World!</Text>
+      <PollCreationForm />
     </Container>
   );
 }
