@@ -1,10 +1,10 @@
-CREATE OR REPLACE function count_poll_votes(bigint)
+CREATE OR REPLACE function count_poll_votes(poll bigint)
 RETURNS TABLE(option text, votes int)
 LANGUAGE SQL
 AS $$
   SELECT option, count(*) as votes
   FROM public.votes
-  WHERE poll_id = $1
+  WHERE poll_id = poll
   GROUP BY option
   ORDER BY votes DESC;
 $$;

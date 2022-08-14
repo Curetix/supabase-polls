@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.152.0/http/server.ts';
 import { z } from 'https://deno.land/x/zod@v3.18.0/index.ts';
 import supabase from '../_shared/supabase.ts';
 import corsHeaders from '../_shared/cors.ts';
+import generateShareableId from '../_shared/id_generator.ts';
 import { Poll } from '../_shared/types.ts';
 
 const headers = {
@@ -82,6 +83,7 @@ serve(async (req: Request) => {
     {
       ...validatedPoll.data,
       user_id: userId || undefined,
+      shareable_id: generateShareableId(),
     },
   ]);
 

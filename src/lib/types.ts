@@ -1,8 +1,10 @@
 export type Poll = {
   id: number;
+  shareable_id: string;
   user_id?: string;
   title?: string;
   is_unlisted?: boolean;
+  created_at: string;
   close_at: string;
   allow_multiple_answers?: boolean;
   options: string[];

@@ -1,5 +1,6 @@
 export type Poll = {
   id: number;
+  shareable_id: string;
   user_id?: string;
   title?: string;
   is_unlisted?: boolean;
