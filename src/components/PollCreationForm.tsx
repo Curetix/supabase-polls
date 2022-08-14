@@ -6,8 +6,6 @@ import {
   useToast,
   VStack,
   HStack,
-  Alert,
-  AlertIcon,
   Heading,
   Input,
   InputGroup,
@@ -107,11 +105,6 @@ export default function PollCreationForm() {
         >
           Create a Poll
         </Heading>
-
-        <Alert status="info" variant="left-accent">
-          <AlertIcon />
-          If you log in, you will be able to manage your poll later!
-        </Alert>
 
         <FormControl isRequired isInvalid={errors.title !== undefined}>
           <FormLabel>Question</FormLabel>

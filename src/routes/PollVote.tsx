@@ -13,7 +13,7 @@ export default function Vote() {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [poll, setPoll] = useState<PollType | null>(null);
-  const [votedPolls, setVotedPolls] = useState<string[]>(
+  const [votedPolls] = useState<string[]>(
     JSON.parse(localStorage.getItem('voted-polls') || '[]'),
   );
   const { pollId } = useParams();
@@ -46,8 +46,9 @@ export default function Vote() {
   };
 
   const votedCurrentPoll = () => {
-    setVotedPolls([...votedPolls, pollId]);
-    localStorage.setItem('voted-polls', JSON.stringify(votedPolls));
+    if (import.meta.env.PROD) {
+      localStorage.setItem('voted-polls', JSON.stringify([...votedPolls, pollId]));
+    }
     navigate(`/${pollId}/results`);
   };
 

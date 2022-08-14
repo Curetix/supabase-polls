@@ -39,34 +39,35 @@ export default function PollResultsChart({ poll }: Props) {
         description: 'Something went wrong while loading the votes.',
       });
     } else {
-      // TODO: options and polls with 0 votes won't show up!
       setVotes(data);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
-    if (votes === null) fetchVotes().catch(console.error);
-    // if (subscription === null && votes !== null) {
-    //   const sub = supabase
-    //     .from<Vote>(`votes:poll_id=eq.${poll.id}`)
-    //     .on('INSERT', (payload) => {
-    //       console.log('Received realtime vote');
-    //       const n: { option: string; votes: number }[] = [...votes];
-    //       const i = n.findIndex((v) => v.option === payload.new.option);
-    //       if (i > -1) n[i].votes += 1;
-    //       else n.push({ option: payload.new.option, votes: 1 });
-    //       setVotes(n);
-    //     })
-    //     .subscribe();
-    //   setSubscription(sub);
-    // }
-    // return () => {
-    //   if (subscription !== null) {
-    //     supabase.removeSubscription(subscription);
-    //   }
-    // };
+    fetchVotes().catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (votes !== null && subscription === null) {
+      const sub = supabase
+        .from<Vote>(`votes:poll_id=eq.${poll.id}`)
+        .on('INSERT', (payload) => {
+          console.log('Received realtime vote');
+          const n = [...votes];
+          const i = n.findIndex((v) => v.option === payload.new.option);
+          if (i > -1) n[i].votes += 1;
+          setVotes(n);
+        })
+        .subscribe();
+      setSubscription(sub);
+    }
+    return () => {
+      if (subscription !== null) {
+        supabase.removeSubscription(subscription);
+      }
+    };
+  }, [votes]);
 
   if (isLoading) {
     return (
@@ -89,11 +90,9 @@ export default function PollResultsChart({ poll }: Props) {
       )}
 
       <UnorderedList>
-        {votes?.map((v, i) => (
-          <ListItem key={i}>
-            {v.option}
-            :
-            {v.votes}
+        {votes?.map((v) => (
+          <ListItem key={v.option}>
+            {`${v.option}: ${v.votes}`}
           </ListItem>
         ))}
       </UnorderedList>

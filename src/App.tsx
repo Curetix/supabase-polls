@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Grid } from '@chakra-ui/react';
 import ColorModeSwitcher from './components/ColorModeSwitcher';
