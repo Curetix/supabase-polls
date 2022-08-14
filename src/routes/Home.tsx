@@ -9,19 +9,20 @@ import {
   Button, Divider, Container,
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/all';
-import { Poll as PollType } from '../lib/types';
+import { Poll } from '../lib/types';
 import supabase from '../lib/supabase';
 
 export default function Home() {
   const navigate = useNavigate();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [polls, setPolls] = useState<PollType[] | null>(null);
+  const [polls, setPolls] = useState<Poll[] | null>(null);
 
   const fetchPoll = async () => {
     const { data, error } = await supabase
-      .from<PollType>('polls')
+      .from<Poll>('polls')
       .select('*')
+      .eq('is_unlisted', false)
       .order('created_at', { ascending: false })
       .limit(5);
     if (error) {
