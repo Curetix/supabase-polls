@@ -93,7 +93,7 @@ export default function PollCreationForm() {
         duration: 5000,
         isClosable: true,
       });
-      navigate(`/${data.poll!.id}`);
+      navigate(`/${data.poll!.shareable_id}`);
     }
   }
 
