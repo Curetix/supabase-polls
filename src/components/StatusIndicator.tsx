@@ -1,10 +1,18 @@
 import {
-  Box, Flex, keyframes, Tooltip,
+  Box, Tooltip, keyframes,
 } from '@chakra-ui/react';
 import React from 'react';
+import * as CSS from 'csstype';
 
-export default function StatusIndicator() {
-  const activeColor = 'green.500';
+interface StatusIndicatorProps extends React.PropsWithChildren<any> {
+  active: boolean;
+  activeColor: CSS.Property.Color;
+}
+
+export default function StatusIndicator(props: StatusIndicatorProps) {
+  const { active } = props;
+  let { activeColor } = props;
+  activeColor = `${activeColor || 'red'}.500`;
   const inactiveColor = 'gray.400';
   const ringScaleMin = 0.33;
   const ringScaleMax = 0.66;
@@ -40,21 +48,13 @@ export default function StatusIndicator() {
   }
   `;
 
-  return (
-    <Flex
-      justifyContent="center"
-      alignItems="center"
-      h="216px"
-      w="full"
-      flexDir="column"
-      overflow="hidden"
-    >
-      {/* Ideally, only the box should be used. The <Flex /> is used to style the preview. */}
-      <Tooltip label="Status: Active" textTransform="capitalize">
+  if (active) {
+    return (
+      <Tooltip label="Realtime Results Active" textTransform="capitalize">
         <Box
           as="div"
-          h="24px"
-          w="24px"
+          h="20px"
+          w="20px"
           mb="1.99em"
           position="relative"
           bgColor={activeColor}
@@ -77,16 +77,18 @@ export default function StatusIndicator() {
           }}
         />
       </Tooltip>
-      <Tooltip label="Status: Inactive" textTransform="capitalize">
-        <Box
-          as="div"
-          h="24px"
-          w="24px"
-          position="relative"
-          bgColor={inactiveColor}
-          borderRadius="50%"
-        />
-      </Tooltip>
-    </Flex>
+    );
+  }
+  return (
+    <Tooltip label="No Realtime Results" textTransform="capitalize">
+      <Box
+        as="div"
+        h="24px"
+        w="24px"
+        position="relative"
+        bgColor={inactiveColor}
+        borderRadius="50%"
+      />
+    </Tooltip>
   );
 }

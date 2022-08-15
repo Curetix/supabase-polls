@@ -12,6 +12,7 @@ import {
 import { RealtimeSubscription } from '@supabase/supabase-js';
 import { Poll, Vote } from '../lib/types';
 import supabase from '../lib/supabase';
+import StatusIndicator from './StatusIndicator';
 
 type Props = {
   poll: Poll;
@@ -81,12 +82,10 @@ export default function PollResultsChart({ poll }: Props) {
     <VStack spacing={8}>
       <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
 
-      {subscription !== null && (
-        <HStack>
-          <Heading as="h5" size="sm">
-            Realtime Results
-          </Heading>
-        </HStack>
+      {subscription !== null ? (
+        <StatusIndicator active activeColor="red" />
+      ) : (
+        <StatusIndicator active={false} activeColor="red" />
       )}
 
       <UnorderedList>
