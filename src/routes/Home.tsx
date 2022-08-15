@@ -26,13 +26,14 @@ export default function Home() {
       .order('created_at', { ascending: false })
       .limit(5);
     if (error) {
-      console.log(error);
+      console.error(error);
       toast({
         status: 'error',
         title: 'Error',
         description: error.message,
       });
-    } else if (data === null || data.length === 0) {
+    } else if (data === null) {
+      console.warn('Data is null.');
       toast({
         status: 'error',
         title: 'Error',
@@ -54,7 +55,7 @@ export default function Home() {
         <Heading fontSize={{ base: '3xl' }}>Latest Polls</Heading>
 
         { isLoading && <Spinner size="xl" /> }
-        { polls && (
+        { polls !== null && polls.length > 0 && !isLoading && (
           <VStack spacing={4}>
             {polls?.map((p) => (
               <Button
@@ -69,7 +70,13 @@ export default function Home() {
             ))}
           </VStack>
         )}
-        {!polls && !isLoading && <Alert status="error">Oops, could not load latest polls.</Alert>}
+
+        {polls !== null && polls.length === 0 && !isLoading && (
+          <Alert status="info">No polls found.</Alert>
+        )}
+        {polls === null && !isLoading && (
+          <Alert status="error">Oops, could not load latest polls.</Alert>
+        )}
 
         <Divider />
 
