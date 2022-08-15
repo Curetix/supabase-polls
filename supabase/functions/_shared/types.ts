@@ -12,7 +12,7 @@ export type Poll = {
 export type Vote = {
   id: number;
   created_at: string;
-  poll_id: string;
+  poll_id: number;
   user_id?: string;
   option: string;
 };

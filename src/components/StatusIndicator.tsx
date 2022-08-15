@@ -4,14 +4,13 @@ import {
 import React from 'react';
 import * as CSS from 'csstype';
 
-interface StatusIndicatorProps extends React.PropsWithChildren<any> {
-  active: boolean;
-  activeColor: CSS.Property.Color;
-}
+type Props = {
+  active: boolean,
+  activeColor: CSS.Property.Color,
+};
 
-export default function StatusIndicator(props: StatusIndicatorProps) {
-  const { active } = props;
-  let { activeColor } = props;
+export default function StatusIndicator({ active, activeColor }: Props) {
+  // eslint-disable-next-line no-param-reassign
   activeColor = `${activeColor || 'red'}.500`;
   const inactiveColor = 'gray.400';
   const ringScaleMin = 0.33;

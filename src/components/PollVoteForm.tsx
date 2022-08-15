@@ -6,7 +6,7 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  VStack,
+  VStack, CheckboxGroup, Checkbox,
 } from '@chakra-ui/react';
 import { CastVoteResponse, Poll } from '../lib/types';
 import supabase from '../lib/supabase';
@@ -19,33 +19,15 @@ type Props = {
 export default function PollVoteForm({ poll, voteCb }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(poll.options[0]);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
   const colors = [
     'red',
-    'orange',
-    'yellow',
     'green',
-    'teal',
+    'orange',
     'blue',
-    'cyan',
     'purple',
-    'pink',
   ];
-
-  const options = [];
-
-  for (let i = 0; i < poll.options.length; i += 1) {
-    options.push(
-      <Radio
-        key={i}
-        colorScheme={colors[Math.floor(Math.random() * colors.length)]}
-        size="lg"
-        value={poll.options[i]}
-      >
-        {poll.options[i]}
-      </Radio>,
-    );
-  }
 
   async function castVote() {
     setIsLoading(true);
@@ -54,7 +36,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
       {
         body: JSON.stringify({
           pollId: poll.id,
-          voteOption: selectedOption,
+          voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
         }),
       },
     );
@@ -81,11 +63,45 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
     <VStack spacing={10}>
       <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
 
-      <RadioGroup value={selectedOption} onChange={setSelectedOption}>
-        <Stack>{options}</Stack>
-      </RadioGroup>
+      {poll.allow_multiple_answers ? (
+        <CheckboxGroup onChange={setSelectedOptions}>
+          <Stack>
+            {poll.options.map((option, index) => (
+              <Checkbox
+                colorScheme={colors[index]}
+                size="lg"
+                key={option}
+                value={option}
+              >
+                {option}
+              </Checkbox>
+            ))}
+          </Stack>
+        </CheckboxGroup>
+      ) : (
+        <RadioGroup onChange={setSelectedOption}>
+          <Stack>
+            {poll.options.map((option, index) => (
+              <Radio
+                colorScheme={colors[index]}
+                size="lg"
+                key={option}
+                value={option}
+              >
+                {option}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
+      )}
 
-      <Button size="lg" colorScheme="green" onClick={() => castVote()} isLoading={isLoading}>
+      <Button
+        size="lg"
+        colorScheme="green"
+        onClick={() => castVote()}
+        isLoading={isLoading}
+        disabled={selectedOption === '' && selectedOptions.length === 0}
+      >
         Vote
       </Button>
     </VStack>
