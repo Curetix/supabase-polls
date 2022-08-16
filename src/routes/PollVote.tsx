@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Button, Container, ScaleFade, Spinner, useToast,
+  Alert, AlertIcon,
+  Button, Container, Heading, ScaleFade, Spinner, useToast, VStack,
 } from '@chakra-ui/react';
 import PollVoteForm from '../components/PollVoteForm';
 import NotFound from '../components/NotFound';
@@ -19,7 +20,6 @@ export default function Vote() {
   const { pollId } = useParams();
 
   if (!pollId) return <NotFound />;
-  if (votedPolls.indexOf(pollId) > -1) navigate(`/${pollId}/results`);
 
   const fetchPoll = async () => {
     const { data, error } = await supabase
@@ -45,7 +45,7 @@ export default function Vote() {
     setIsLoading(false);
   };
 
-  const votedCurrentPoll = () => {
+  const voteCallback = () => {
     if (import.meta.env.PROD) {
       localStorage.setItem('voted-polls', JSON.stringify([...votedPolls, pollId]));
     }
@@ -65,13 +65,36 @@ export default function Vote() {
   }
 
   if (poll) {
+    const voted = votedPolls.indexOf(pollId) > -1;
+    const closed = new Date() >= new Date(poll.close_at);
+
     return (
       <ScaleFade initialScale={0.9} in={!isLoading}>
         <Container maxW="container.lg" centerContent>
-          <PollVoteForm poll={poll} voteCb={votedCurrentPoll} />
-          <Button mt={4} onClick={() => navigate(`/${pollId}/results`)}>
-            Show Results
-          </Button>
+          <VStack spacing={8}>
+            <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
+            {voted && (
+              <Alert status="warning" variant="solid">
+                <AlertIcon />
+                You already voted in this poll.
+              </Alert>
+            )}
+            {closed && (
+              <Alert status="warning" variant="solid">
+                <AlertIcon />
+                Voting is closed for this poll.
+              </Alert>
+            )}
+            {!voted && !closed && (
+              <PollVoteForm poll={poll} voteCb={voteCallback} />
+            )}
+            <Button
+              colorScheme={!voted && !closed ? 'gray' : 'blue'}
+              onClick={() => navigate(`/${pollId}/results`)}
+            >
+              Show Results
+            </Button>
+          </VStack>
         </Container>
       </ScaleFade>
     );

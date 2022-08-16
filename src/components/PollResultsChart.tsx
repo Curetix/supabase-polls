@@ -28,6 +28,7 @@ export default function PollResultsChart({ poll }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount[] | null>(null);
   const [subscription, setSubscription] = useState<RealtimeSubscription | null>(null);
+  const closed = new Date() >= new Date(poll.close_at);
 
   const fetchVotes = async () => {
     const { data, error } = await supabase
@@ -50,7 +51,7 @@ export default function PollResultsChart({ poll }: Props) {
   }, []);
 
   useEffect(() => {
-    if (votes !== null && subscription === null) {
+    if (votes !== null && subscription === null && !closed) {
       const sub = supabase
         .from<Vote>(`votes:poll_id=eq.${poll.id}`)
         .on('INSERT', (payload) => {
@@ -82,9 +83,10 @@ export default function PollResultsChart({ poll }: Props) {
     <VStack spacing={8}>
       <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
 
-      {subscription !== null ? (
+      {subscription !== null && !closed && (
         <StatusIndicator active activeColor="red" />
-      ) : (
+      )}
+      {subscription === null && !closed && (
         <StatusIndicator active={false} activeColor="red" />
       )}
 

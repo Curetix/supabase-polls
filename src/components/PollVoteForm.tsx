@@ -60,9 +60,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
   }
 
   return (
-    <VStack spacing={10}>
-      <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
-
+    <VStack spacing={5}>
       {poll.allow_multiple_answers ? (
         <CheckboxGroup onChange={setSelectedOptions}>
           <Stack>
