@@ -1,7 +1,7 @@
+import React from 'react';
 import {
   Box, Tooltip, keyframes,
 } from '@chakra-ui/react';
-import React from 'react';
 import * as CSS from 'csstype';
 
 type Props = {

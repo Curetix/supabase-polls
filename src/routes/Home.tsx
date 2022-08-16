@@ -9,8 +9,8 @@ import {
   Button, Divider, Container,
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/all';
-import { Poll } from '../lib/types';
 import supabase from '../lib/supabase';
+import { Poll } from '../lib/types';
 
 export default function Home() {
   const navigate = useNavigate();

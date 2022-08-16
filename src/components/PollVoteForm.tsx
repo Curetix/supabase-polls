@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import {
   useToast,
   Button,
-  Heading,
   Radio,
   RadioGroup,
   Stack,
   VStack, CheckboxGroup, Checkbox,
 } from '@chakra-ui/react';
-import { CastVoteResponse, Poll } from '../lib/types';
 import supabase from '../lib/supabase';
+import { CastVoteResponse, Poll } from '../lib/types';
 
 type Props = {
   poll: Poll;

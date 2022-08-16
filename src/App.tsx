@@ -2,11 +2,11 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Grid } from '@chakra-ui/react';
 import ColorModeSwitcher from './components/ColorModeSwitcher';
-import NotFound from './components/NotFound';
 import Home from './routes/Home';
 import PollCreation from './routes/PollCreation';
 import PollVote from './routes/PollVote';
 import PollResults from './routes/PollResults';
+import NotFound from './components/NotFound';
 
 function App() {
   return (

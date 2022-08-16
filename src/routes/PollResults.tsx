@@ -3,10 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   Button, Container, ScaleFade, Spinner, useToast,
 } from '@chakra-ui/react';
-import PollResultsChart from '../components/PollResultsChart';
-import NotFound from '../components/NotFound';
 import supabase from '../lib/supabase';
 import { Poll as PollType } from '../lib/types';
+import PollResultsChart from '../components/PollResultsChart';
+import NotFound from '../components/NotFound';
 
 export default function Results() {
   const navigate = useNavigate();

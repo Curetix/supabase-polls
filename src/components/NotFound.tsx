@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Flex, Heading, Text } from '@chakra-ui/react';
+import {
+  Box, Flex, Heading, Text,
+} from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
 export default function NotFound() {
@@ -10,19 +12,19 @@ export default function NotFound() {
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          bg={'red.500'}
-          rounded={'50px'}
-          w={'55px'}
-          h={'55px'}
+          bg="red.500"
+          rounded="50px"
+          w="55px"
+          h="55px"
           textAlign="center"
         >
-          <CloseIcon boxSize={'20px'} color={'white'} />
+          <CloseIcon boxSize="20px" color="white" />
         </Flex>
       </Box>
       <Heading as="h2" size="xl" mt={6} mb={2}>
         404 Not Found
       </Heading>
-      <Text color={'gray.500'}>We could not find the requested resource.</Text>
+      <Text color="gray.500">We could not find the requested resource.</Text>
     </Box>
   );
 }

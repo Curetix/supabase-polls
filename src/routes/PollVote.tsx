@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Alert, AlertIcon,
-  Button, Container, Heading, ScaleFade, Spinner, useToast, VStack,
+  useToast,
+  Alert,
+  AlertIcon,
+  Button,
+  Container,
+  Heading,
+  ScaleFade,
+  Spinner,
+  VStack,
 } from '@chakra-ui/react';
-import PollVoteForm from '../components/PollVoteForm';
-import NotFound from '../components/NotFound';
 import supabase from '../lib/supabase';
 import { Poll as PollType } from '../lib/types';
+import PollVoteForm from '../components/PollVoteForm';
+import NotFound from '../components/NotFound';
 
 export default function Vote() {
   const navigate = useNavigate();

@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import {
+  useToast,
   Container,
   Heading,
-  HStack,
   ListItem,
   Spinner,
   UnorderedList,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { RealtimeSubscription } from '@supabase/supabase-js';
-import { Poll, Vote } from '../lib/types';
 import supabase from '../lib/supabase';
+import { Poll, Vote } from '../lib/types';
 import StatusIndicator from './StatusIndicator';
 
 type Props = {
