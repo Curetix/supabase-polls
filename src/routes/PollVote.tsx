@@ -25,7 +25,7 @@ export default function Vote() {
     const { data, error } = await supabase
       .from<PollType>('polls')
       .select('*')
-      .eq('shareable_id', pollId);
+      .eq('id', pollId);
     if (error) {
       console.log(error);
       toast({

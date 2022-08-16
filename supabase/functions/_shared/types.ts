@@ -1,8 +1,7 @@
 export type Poll = {
-  id: number;
-  shareable_id: string;
+  id: string;
   user_id?: string;
-  title?: string;
+  title: string;
   is_unlisted?: boolean;
   close_at: string;
   allow_multiple_answers?: boolean;
@@ -12,7 +11,7 @@ export type Poll = {
 export type Vote = {
   id: number;
   created_at: string;
-  poll_id: number;
+  poll_id: string;
   user_id?: string;
   option: string;
 };

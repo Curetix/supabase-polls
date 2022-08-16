@@ -24,7 +24,7 @@ export default function Results() {
     const { data, error } = await supabase
       .from<PollType>('polls')
       .select('*')
-      .eq('shareable_id', pollId);
+      .eq('id', pollId);
     if (error) {
       console.log(error);
       toast({
@@ -32,13 +32,13 @@ export default function Results() {
         title: 'Error',
         description: error.message,
       });
-    } else if (data === null || data.length === 0) {
+    } else if (data === null) {
       toast({
         status: 'error',
         title: 'Error',
         description: 'Something went wrong while loading the poll.',
       });
-    } else {
+    } else if (data.length > 0) {
       setPoll(data[0]);
     }
     setIsLoading(false);

@@ -11,7 +11,7 @@ const headers = {
 
 const trimString = (u: unknown) => (typeof u === 'string' ? u.trim() : u);
 const voteSchema = z.object({
-  pollId: z.number(),
+  pollId: z.string(),
   voteOption: z.union([
     z.preprocess(trimString, z.string().min(1)),
     z

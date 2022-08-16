@@ -63,7 +63,7 @@ export default function Home() {
                 colorScheme="blue"
                 variant="outline"
                 rightIcon={<FaChevronRight />}
-                onClick={() => navigate(`/${p.shareable_id}`)}
+                onClick={() => navigate(`/${p.id}`)}
               >
                 { p.title }
               </Button>

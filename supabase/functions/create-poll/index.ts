@@ -2,7 +2,6 @@ import { serve } from 'https://deno.land/std@0.152.0/http/server.ts';
 import { z } from 'https://deno.land/x/zod@v3.18.0/index.ts';
 import supabase from '../_shared/supabase.ts';
 import corsHeaders from '../_shared/cors.ts';
-import generateShareableId from '../_shared/id_generator.ts';
 import { Poll } from '../_shared/types.ts';
 
 const headers = {
@@ -13,7 +12,7 @@ const headers = {
 const trimString = (u: unknown) => (typeof u === 'string' ? u.trim() : u);
 const pollSchema = z.object({
   title: z.preprocess(trimString, z.string().min(1)),
-  is_unlisted: z.boolean().default(true),
+  is_unlisted: z.boolean().optional(),
   close_at: z
     .string()
     .optional()
@@ -24,7 +23,7 @@ const pollSchema = z.object({
       },
       { message: 'Poll close date is invalid or in the past.' },
     ),
-  allow_multiple_answers: z.boolean().default(false),
+  allow_multiple_answers: z.boolean().optional(),
   options: z
     .array(z.preprocess(trimString, z.string().min(1)))
     .min(2)
@@ -32,7 +31,7 @@ const pollSchema = z.object({
     .refine((val) => new Set(val).size === val.length, {
       message: 'Poll options contain duplicates.',
     }),
-});
+}).strict();
 
 console.log('Function create-poll is running.');
 serve(async (req: Request) => {
@@ -83,7 +82,6 @@ serve(async (req: Request) => {
     {
       ...validatedPoll.data,
       user_id: userId || undefined,
-      shareable_id: generateShareableId(),
     },
   ]);
 
