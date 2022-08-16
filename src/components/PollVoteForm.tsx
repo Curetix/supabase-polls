@@ -33,23 +33,32 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
     const { data, error } = await supabase.functions.invoke<CastVoteResponse>(
       'cast-vote',
       {
-        body: JSON.stringify({
+        body: {
           pollId: poll.id,
           voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
-        }),
+        },
       },
     );
     setIsLoading(false);
-    if (error !== null || !data.ok || !data.vote) {
+    if (error !== null || !data) {
       toast({
         status: 'error',
         title: 'Error',
-        description: error ? error.message : data.message,
+        description: error ? error.message : 'Something went wrong.',
+        duration: 10000,
+        isClosable: true,
+      });
+    } else if (!data.ok || !data.vote) {
+      toast({
+        status: 'error',
+        title: 'Error',
+        description: data.message,
         duration: 10000,
         isClosable: true,
       });
     } else {
       toast({
+        title: 'Success',
         description: data.message,
         duration: 5000,
         isClosable: true,

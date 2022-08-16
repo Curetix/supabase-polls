@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
-import { Poll as PollType } from '../lib/types';
+import { Poll } from '../lib/types';
 import PollVoteForm from '../components/PollVoteForm';
 import NotFound from '../components/NotFound';
 
@@ -20,7 +20,7 @@ export default function Vote() {
   const navigate = useNavigate();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [poll, setPoll] = useState<PollType | null>(null);
+  const [poll, setPoll] = useState<Poll | null>(null);
   const [votedPolls] = useState<string[]>(
     JSON.parse(localStorage.getItem('voted-polls') || '[]'),
   );
@@ -30,7 +30,7 @@ export default function Vote() {
 
   const fetchPoll = async () => {
     const { data, error } = await supabase
-      .from<PollType>('polls')
+      .from('polls')
       .select('*')
       .eq('id', pollId);
     if (error) {

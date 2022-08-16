@@ -8,31 +8,27 @@ import {
   UnorderedList,
   VStack,
 } from '@chakra-ui/react';
-import { RealtimeSubscription } from '@supabase/supabase-js';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import supabase from '../lib/supabase';
-import { Poll, Vote } from '../lib/types';
+import { Database, Poll } from '../lib/types';
 import StatusIndicator from './StatusIndicator';
 
 type Props = {
   poll: Poll;
 };
 
-type VoteCount = {
-  option: string,
-  votes: number,
-};
+type VoteCount = Database['public']['Functions']['count_poll_votes']['Returns'];
 
 export default function PollResultsChart({ poll }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount[] | null>(null);
-  const [subscription, setSubscription] = useState<RealtimeSubscription | null>(null);
+  const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
   const closed = new Date() >= new Date(poll.close_at);
 
   const fetchVotes = async () => {
-    const { data, error } = await supabase
-      .rpc<VoteCount>('count_poll_votes', { poll: poll.id });
-    if (error || data === null) {
+    const { data, error } = await supabase.rpc('count_poll_votes', { poll: poll.id });
+    if (error || !data) {
       console.log(error);
       toast({
         status: 'error',
@@ -51,21 +47,29 @@ export default function PollResultsChart({ poll }: Props) {
 
   useEffect(() => {
     if (votes !== null && subscription === null && !closed) {
-      const sub = supabase
-        .from<Vote>(`votes:poll_id=eq.${poll.id}`)
-        .on('INSERT', (payload) => {
-          console.log('Received realtime vote');
-          const n = [...votes];
-          const i = n.findIndex((v) => v.option === payload.new.option);
-          if (i > -1) n[i].votes += 1;
-          setVotes(n);
-        })
-        .subscribe();
-      setSubscription(sub);
+      const channel = supabase
+        .channel('votes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: `votes:poll_id=eq.${poll.id}`,
+          },
+          (payload: any) => {
+            console.log('Received realtime vote');
+            const n = [...votes];
+            const i = n.findIndex((v) => v.option === payload.new.option);
+            if (i > -1) n[i].votes += 1;
+            setVotes(n);
+          },
+        );
+      channel.subscribe();
+      setSubscription(channel);
     }
     return () => {
       if (subscription !== null) {
-        supabase.removeSubscription(subscription);
+        supabase.removeChannel(subscription);
       }
     };
   }, [votes]);

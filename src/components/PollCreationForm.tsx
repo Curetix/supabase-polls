@@ -55,25 +55,27 @@ export default function PollCreationForm() {
     const { data, error } = await supabase.functions.invoke<CreatePollResponse>(
       'create-poll',
       {
-        body: JSON.stringify({
+        body: {
           title: input.title,
           options: input.options.map((o: any) => o.value),
           is_unlisted: input.isUnlisted,
           allow_multiple_answers: input.allowMultipleChoices,
           close_at: input.closeAt,
-        }),
+        },
       },
     );
     setIsLoading(false);
-    if (error !== null || (!data.ok && !data.validation)) {
+    if (error !== null || data === null) {
       toast({
         status: 'error',
         title: 'Error',
-        description: error ? error.message : data.message,
+        description: error ? error.message : 'Something went wrong.',
         duration: 10000,
         isClosable: true,
       });
-    } else if (data && !data.ok && data.validation) {
+      return;
+    }
+    if (!data.ok && data.validation) {
       // eslint-disable-next-line no-restricted-syntax
       for (const issue of data.validation.issues) {
         toast({
@@ -84,6 +86,14 @@ export default function PollCreationForm() {
           isClosable: true,
         });
       }
+    } else if (!data.ok) {
+      toast({
+        status: 'error',
+        title: 'Error',
+        description: data.message,
+        duration: 10000,
+        isClosable: true,
+      });
     } else {
       toast({
         title: 'Success',

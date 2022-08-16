@@ -4,7 +4,7 @@ import {
   Button, Container, ScaleFade, Spinner, useToast,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
-import { Poll as PollType } from '../lib/types';
+import { Poll } from '../lib/types';
 import PollResultsChart from '../components/PollResultsChart';
 import NotFound from '../components/NotFound';
 
@@ -12,7 +12,7 @@ export default function Results() {
   const navigate = useNavigate();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [poll, setPoll] = useState<PollType | null>(null);
+  const [poll, setPoll] = useState<Poll | null>(null);
   const [votedPolls] = useState<string[]>(
     JSON.parse(localStorage.getItem('voted-polls') || '[]'),
   );
@@ -22,7 +22,7 @@ export default function Results() {
 
   const fetchPoll = async () => {
     const { data, error } = await supabase
-      .from<PollType>('polls')
+      .from('polls')
       .select('*')
       .eq('id', pollId);
     if (error) {

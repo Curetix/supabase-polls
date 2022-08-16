@@ -20,7 +20,7 @@ export default function Home() {
 
   const fetchPoll = async () => {
     const { data, error } = await supabase
-      .from<Poll>('polls')
+      .from('polls')
       .select('*')
       .eq('is_unlisted', false)
       .order('created_at', { ascending: false })
