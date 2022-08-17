@@ -3,12 +3,14 @@ import {
   useToast,
   Container,
   Heading,
-  ListItem,
   Spinner,
-  UnorderedList,
   VStack,
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import {
+  Chart as ChartJS, ArcElement, Tooltip, Legend, ChartData,
+} from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 import supabase from '../lib/supabase';
 import {
   RealtimePayload, Poll, Vote, VoteCount,
@@ -19,11 +21,17 @@ type Props = {
   poll: Poll;
 };
 
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 export default function PollResultsChart({ poll }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount[] | null>(null);
   const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
+  const [chartData, setChartData] = useState<ChartData<'pie'>>({
+    labels: votes?.map((v) => v.option),
+    datasets: [],
+  });
   const closed = new Date() >= new Date(poll.close_at);
 
   const fetchVotes = async () => {
@@ -75,6 +83,27 @@ export default function PollResultsChart({ poll }: Props) {
     }
   }, [subscription]);
 
+  useEffect(() => {
+    if (votes === null) return;
+    setChartData({
+      labels: votes!.map((v) => v.option),
+      datasets: [
+        {
+          label: '# of votes',
+          data: votes!.map((v) => v.votes),
+          backgroundColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+        },
+      ],
+    });
+  }, [votes]);
+
   if (isLoading) {
     return (
       <Container centerContent>
@@ -94,13 +123,7 @@ export default function PollResultsChart({ poll }: Props) {
         <StatusIndicator active={false} activeColor="red" />
       )}
 
-      <UnorderedList>
-        {votes?.map((v) => (
-          <ListItem key={v.option}>
-            {`${v.option}: ${v.votes}`}
-          </ListItem>
-        ))}
-      </UnorderedList>
+      <Pie data={chartData} />
     </VStack>
   );
 }
