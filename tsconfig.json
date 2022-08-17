@@ -17,6 +17,6 @@
     "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx"],
-  "exclude": ["dist", "node_modules", "supabase/functions"],
+  "exclude": ["dist", "node_modules", "supabase/functions", "scripts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

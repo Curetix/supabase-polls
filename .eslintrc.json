@@ -17,7 +17,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "ignorePatterns": ["vite.config.ts", "supabase/functions/**/*.ts"],
+  "ignorePatterns": ["vite.config.ts", "supabase/functions/**/*.ts", "scripts/*.ts"],
   "plugins": [
     "react",
     "@typescript-eslint"
