@@ -10,14 +10,14 @@ import {
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import supabase from '../lib/supabase';
-import { Database, Poll } from '../lib/types';
+import {
+  RealtimePayload, Poll, Vote, VoteCount,
+} from '../lib/types';
 import StatusIndicator from './StatusIndicator';
 
 type Props = {
   poll: Poll;
 };
-
-type VoteCount = Database['public']['Functions']['count_poll_votes']['Returns'];
 
 export default function PollResultsChart({ poll }: Props) {
   const toast = useToast();
@@ -48,31 +48,32 @@ export default function PollResultsChart({ poll }: Props) {
   useEffect(() => {
     if (votes !== null && subscription === null && !closed) {
       const channel = supabase
-        .channel('votes')
+        .channel('public:votes')
         .on(
           'postgres_changes',
           {
             event: 'INSERT',
             schema: 'public',
-            table: `votes:poll_id=eq.${poll.id}`,
+            table: 'votes',
+            filter: `poll_id=eq.${poll.id}`,
           },
-          (payload: any) => {
+          (payload: RealtimePayload<Vote>) => {
             console.log('Received realtime vote');
             const n = [...votes];
-            const i = n.findIndex((v) => v.option === payload.new.option);
+            const i = n.findIndex((v) => v.option === payload.record.option);
             if (i > -1) n[i].votes += 1;
             setVotes(n);
           },
         );
-      channel.subscribe();
-      setSubscription(channel);
+      channel.subscribe(() => setSubscription(channel));
     }
-    return () => {
-      if (subscription !== null) {
-        supabase.removeChannel(subscription);
-      }
-    };
   }, [votes]);
+
+  useEffect(() => () => {
+    if (subscription !== null) {
+      supabase.removeChannel(subscription);
+    }
+  }, [subscription]);
 
   if (isLoading) {
     return (

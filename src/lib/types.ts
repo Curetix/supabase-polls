@@ -82,8 +82,8 @@ export interface Database {
 }
 
 export type Poll = Database['public']['Tables']['polls']['Row'];
-
 export type Vote = Database['public']['Tables']['votes']['Row'];
+export type VoteCount = Database['public']['Functions']['count_poll_votes']['Returns'];
 
 type BaseResponse = {
   ok: boolean;
@@ -97,4 +97,17 @@ export type CreatePollResponse = BaseResponse & {
 
 export type CastVoteResponse = BaseResponse & {
   vote?: Vote;
+};
+
+export type RealtimePayload<T> = {
+  columns: {
+    name: string,
+    type: string,
+  }[];
+  commit_timestamp: string;
+  errors: object | null;
+  record: T;
+  schema: string;
+  table: string;
+  type: 'INSERT' | 'UPDATE' | 'DELETE';
 };
