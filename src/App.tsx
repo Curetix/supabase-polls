@@ -3,9 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Grid } from '@chakra-ui/react';
 import ColorModeSwitcher from './components/ColorModeSwitcher';
 import Home from './routes/Home';
-import PollCreation from './routes/PollCreation';
-import PollVote from './routes/PollVote';
-import PollResults from './routes/PollResults';
+import CreatePoll from './routes/CreatePoll';
+import PollVote from './routes/Poll';
 import NotFound from './components/NotFound';
 
 function App() {
@@ -15,9 +14,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/create" element={<PollCreation />} />
+          <Route path="/create" element={<CreatePoll />} />
           <Route path="/:pollId" element={<PollVote />} />
-          <Route path="/:pollId/results" element={<PollResults />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

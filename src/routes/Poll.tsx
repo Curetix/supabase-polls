@@ -14,6 +14,7 @@ import {
 import supabase from '../lib/supabase';
 import { Poll } from '../lib/types';
 import PollVoteForm from '../components/PollVoteForm';
+import PollResults from "../components/PollResults";
 import NotFound from '../components/NotFound';
 
 export default function Vote() {
@@ -80,27 +81,26 @@ export default function Vote() {
         <Container maxW="container.lg" centerContent>
           <VStack spacing={8}>
             <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
+
             {voted && (
               <Alert status="warning" variant="solid">
                 <AlertIcon />
                 You already voted in this poll.
               </Alert>
             )}
+
             {closed && (
               <Alert status="warning" variant="solid">
                 <AlertIcon />
                 Voting is closed for this poll.
               </Alert>
             )}
+
             {!voted && !closed && (
               <PollVoteForm poll={poll} voteCb={voteCallback} />
             )}
-            <Button
-              colorScheme={!voted && !closed ? 'gray' : 'blue'}
-              onClick={() => navigate(`/${pollId}/results`)}
-            >
-              Show Results
-            </Button>
+
+            <PollResults poll={poll} />
           </VStack>
         </Container>
       </ScaleFade>

@@ -5,7 +5,9 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  VStack, CheckboxGroup, Checkbox,
+  VStack,
+  CheckboxGroup,
+  Checkbox,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
 import { CastVoteResponse, Poll } from '../lib/types';

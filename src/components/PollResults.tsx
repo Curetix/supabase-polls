@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   useToast,
   Container,
-  Heading,
   Spinner,
-  VStack,
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import {
@@ -23,7 +21,7 @@ type Props = {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PollResultsChart({ poll }: Props) {
+export default function PollResults({ poll }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount[] | null>(null);
@@ -89,6 +87,9 @@ export default function PollResultsChart({ poll }: Props) {
       labels: votes!.map((v) => v.option),
       datasets: [
         {
+          hoverOffset: 10,
+          borderWidth: 1,
+          borderRadius: 3,
           label: '# of votes',
           data: votes!.map((v) => v.votes),
           backgroundColor: [
@@ -113,17 +114,6 @@ export default function PollResultsChart({ poll }: Props) {
   }
 
   return (
-    <VStack spacing={8}>
-      <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
-
-      {subscription !== null && !closed && (
-        <StatusIndicator active activeColor="red" />
-      )}
-      {subscription === null && !closed && (
-        <StatusIndicator active={false} activeColor="red" />
-      )}
-
-      <Pie data={chartData} />
-    </VStack>
+    <Pie data={chartData} />
   );
 }
