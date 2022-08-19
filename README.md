@@ -8,19 +8,17 @@ This is my first React project (I'm used to Vue), so it will be messy in places.
 ## Features
 
 * Create a poll with up to five choices, optionally allow multiple-choice votes.
-* Results page with multiple visualizations and realtime updates.
-* Support both anonymous and authenticated poll creation and votes.
+* Results page with visualizations and realtime updates.
 
 ## Planned Features
 
+* Add autentication, so users can manage their polls.
 * Bot-protections using Captcha, an IP record table and user sessions.
-* Authenticated users will be able to manage their created polls.
 * Dunno, maybe more.
 
 ## Supabase Technologies
 
 * Polls and votes stored in Database
-* Edge Functions to create polls and vote
-* Database Functions to count votes for a poll
+* Edge Functions to create polls and cast votes
+* Database Functions to count votes for a poll, so a client doesn't have to request all individual votes
 * Realtime votes and poll results page
-* Optional authentication
