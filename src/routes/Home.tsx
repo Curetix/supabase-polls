@@ -6,7 +6,9 @@ import {
   Spinner,
   useToast,
   Heading,
-  Button, Divider, Container,
+  Button,
+  Divider,
+  Container,
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/all';
 import supabase from '../lib/supabase';

@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   useToast,
   Alert,
   AlertIcon,
-  Button,
   Container,
   Heading,
   ScaleFade,
   Spinner,
-  VStack,
+  Flex,
+  Box,
+  Spacer,
+  Center,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
 import { Poll } from '../lib/types';
 import PollVoteForm from '../components/PollVoteForm';
-import PollResults from "../components/PollResults";
+import PollResults from '../components/PollResults';
 import NotFound from '../components/NotFound';
 
 export default function Vote() {
-  const navigate = useNavigate();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [poll, setPoll] = useState<Poll | null>(null);
-  const [votedPolls] = useState<string[]>(
+  const [votedPolls, setVotedPolls] = useState<string[]>(
     JSON.parse(localStorage.getItem('voted-polls') || '[]'),
   );
   const { pollId } = useParams();
@@ -54,10 +55,10 @@ export default function Vote() {
   };
 
   const voteCallback = () => {
+    setVotedPolls([...votedPolls, pollId]);
     if (import.meta.env.PROD) {
-      localStorage.setItem('voted-polls', JSON.stringify([...votedPolls, pollId]));
+      localStorage.setItem('voted-polls', JSON.stringify(votedPolls));
     }
-    navigate(`/${pollId}/results`);
   };
 
   useEffect(() => {
@@ -78,30 +79,36 @@ export default function Vote() {
 
     return (
       <ScaleFade initialScale={0.9} in={!isLoading}>
-        <Container maxW="container.lg" centerContent>
-          <VStack spacing={8}>
-            <Heading fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
+        <Container maxW="container.lg">
+          <Center>
+            <Heading paddingBottom={10} fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
+          </Center>
 
-            {voted && (
-              <Alert status="warning" variant="solid">
-                <AlertIcon />
-                You already voted in this poll.
-              </Alert>
-            )}
+          <Flex maxWidth="container.lg" alignItems="center">
+            <Box p={5}>
+              {voted && (
+                <Alert status="warning" variant="solid">
+                  <AlertIcon />
+                  You already voted in this poll.
+                </Alert>
+              )}
 
-            {closed && (
-              <Alert status="warning" variant="solid">
-                <AlertIcon />
-                Voting is closed for this poll.
-              </Alert>
-            )}
+              {closed && (
+                <Alert status="warning" variant="solid">
+                  <AlertIcon />
+                  Voting is closed for this poll.
+                </Alert>
+              )}
 
-            {!voted && !closed && (
-              <PollVoteForm poll={poll} voteCb={voteCallback} />
-            )}
-
-            <PollResults poll={poll} />
-          </VStack>
+              {!voted && !closed && (
+                <PollVoteForm poll={poll} voteCb={voteCallback} />
+              )}
+            </Box>
+            <Spacer />
+            <Box borderWidth="1px" borderRadius="lg" p={3}>
+              <PollResults poll={poll} />
+            </Box>
+          </Flex>
         </Container>
       </ScaleFade>
     );
