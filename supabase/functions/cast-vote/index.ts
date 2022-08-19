@@ -2,7 +2,6 @@ import { serve } from 'https://deno.land/std@0.152.0/http/server.ts';
 import { z } from 'https://deno.land/x/zod@v3.18.0/index.ts';
 import supabase from '../_shared/supabase.ts';
 import corsHeaders from '../_shared/cors.ts';
-import { Poll, Vote } from '../_shared/types.ts';
 
 const headers = {
   ...corsHeaders,
@@ -52,9 +51,9 @@ serve(async (req: Request) => {
   const token = req.headers.get('Authorization')!.replace('Bearer ', '');
   let userId: string | null = null;
   if (token !== Deno.env.get('SUPABASE_ANON_KEY')) {
-    const { user, error } = await supabase.auth.api.getUser(token);
+    const { data, error } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
+    if (error || !data || !data.user) {
       console.warn('User lookup was unsuccessful.', error);
       return new Response(
         JSON.stringify({
@@ -64,12 +63,12 @@ serve(async (req: Request) => {
         { status: 400, headers },
       );
     }
-    userId = user.id;
+    userId = data.user.id;
   }
 
   // Check if poll exists
   const { data: pollData, error: pollError } = await supabase
-    .from<Poll>('polls')
+    .from('polls')
     .select('*')
     .eq('id', pollId);
 
@@ -79,7 +78,7 @@ serve(async (req: Request) => {
       { status: 500, headers },
     );
   }
-  if (pollData === null || pollData.length === 0) {
+  if (!pollData) {
     return new Response(
       JSON.stringify({ ok: false, message: 'Poll not found.' }),
       { status: 400, headers },
@@ -120,16 +119,17 @@ serve(async (req: Request) => {
 
   // Create vote
   const { data: voteData, error: voteError } = await supabase
-    .from<Vote>('votes')
+    .from('votes')
     .insert(
       voteOptionArray.map((option) => ({
         poll_id: pollId,
         option,
         user_id: userId || undefined,
       })),
-    );
+    )
+    .select();
 
-  if (voteData === null || voteData.length === 0 || voteError) {
+  if (voteError || !voteData) {
     return new Response(
       JSON.stringify({
         ok: false,

@@ -1,7 +1,5 @@
 import { parse } from 'https://deno.land/std@0.136.0/flags/mod.ts';
-
 import supabase from '../supabase/functions/_shared/supabase.ts';
-import { Poll, Vote } from '../supabase/functions/_shared/types.ts';
 
 const args = parse(Deno.args);
 
@@ -14,9 +12,9 @@ if (!pollId) {
   Deno.exit(1);
 }
 
-const { data, error } = await supabase.from<Poll>('polls').select('*').eq('id', pollId);
+const { data, error } = await supabase.from('polls').select('*').eq('id', pollId);
 
-if (error || !data || data.length === 0) {
+if (error || !data) {
   if (error) console.log(error);
   else console.error('Poll not found.');
   Deno.exit(1);
@@ -33,7 +31,7 @@ function getRandomInt(min: number, max: number): number {
 for (let i = 0; i < votes; i++) {
   const o = options[getRandomInt(0, options.length - 1)];
   console.log(`Placing vote for ${o}`);
-  const { error: e } = await supabase.from<Vote>('votes').insert([
+  const { error: e } = await supabase.from('votes').insert([
     {
       poll_id: pollId,
       option: o,

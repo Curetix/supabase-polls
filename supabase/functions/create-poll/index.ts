@@ -2,7 +2,6 @@ import { serve } from 'https://deno.land/std@0.152.0/http/server.ts';
 import { z } from 'https://deno.land/x/zod@v3.18.0/index.ts';
 import supabase from '../_shared/supabase.ts';
 import corsHeaders from '../_shared/cors.ts';
-import { Poll } from '../_shared/types.ts';
 
 const headers = {
   ...corsHeaders,
@@ -45,6 +44,7 @@ serve(async (req: Request) => {
   // Validate poll according to schema
   const validatedPoll = pollSchema.safeParse(inputPoll);
   if (!validatedPoll.success) {
+    console.warn('Poll Input is invalid', validatedPoll.error);
     return new Response(
       JSON.stringify({
         ok: false,
@@ -62,9 +62,9 @@ serve(async (req: Request) => {
   const token = req.headers.get('Authorization')!.replace('Bearer ', '');
   let userId: string | null = null;
   if (token !== Deno.env.get('SUPABASE_ANON_KEY')) {
-    const { user, error } = await supabase.auth.api.getUser(token);
+    const { data, error } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
+    if (error || !data || !data.user) {
       console.warn('User lookup was unsuccessful.', error);
       return new Response(
         JSON.stringify({ ok: false, message: error ? error.message : 'User not found.' }),
@@ -74,18 +74,21 @@ serve(async (req: Request) => {
         },
       );
     }
-    userId = user.id;
+    userId = data.user.id;
   }
 
   // Create poll
-  const { data, error } = await supabase.from<Poll>('polls').insert([
-    {
-      ...validatedPoll.data,
-      user_id: userId || undefined,
-    },
-  ]);
+  const { data, error } = await supabase.from('polls')
+    .insert([
+      {
+        ...validatedPoll.data,
+        user_id: userId || undefined,
+      },
+    ])
+    .select();
 
-  if (data === null || data.length === 0 || error) {
+  if (!data || error) {
+    console.error('Error during poll creation', data, error);
     return new Response(
       JSON.stringify({
         ok: false,
