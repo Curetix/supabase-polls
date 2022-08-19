@@ -3,12 +3,13 @@ import {
   useToast,
   Container,
   Spinner,
+  Box,
+  Center,
+  Heading,
+  HStack,
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import {
-  Chart as ChartJS, ArcElement, Tooltip, Legend, ChartData,
-} from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { DefaultRawDatum, ResponsivePie } from '@nivo/pie';
 import supabase from '../lib/supabase';
 import {
   RealtimePayload, Poll, Vote, VoteCount,
@@ -19,17 +20,41 @@ type Props = {
   poll: Poll;
 };
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+type CenteredMetricProps = {
+  dataWithArc: DefaultRawDatum[];
+  centerX: number;
+  centerY: number;
+};
+
+function CenteredMetric({ dataWithArc, centerX, centerY }: CenteredMetricProps) {
+  let total = 0;
+  dataWithArc.forEach((datum) => {
+    total += datum.value;
+  });
+
+  return (
+    <text
+      x={centerX}
+      y={centerY}
+      textAnchor="middle"
+      dominantBaseline="central"
+      style={{
+        fontSize: '48px',
+        fontWeight: 600,
+      }}
+    >
+      {total}
+    </text>
+  );
+}
 
 export default function PollResults({ poll }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount[] | null>(null);
+  const [totalVotes, setTotalVotes] = useState(0);
   const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
-  const [chartData, setChartData] = useState<ChartData<'pie'>>({
-    labels: votes?.map((v) => v.option),
-    datasets: [],
-  });
+  const [chartData, setChartData] = useState<DefaultRawDatum[]>([]);
   const closed = new Date() >= new Date(poll.close_at);
 
   const fetchVotes = async () => {
@@ -43,6 +68,7 @@ export default function PollResults({ poll }: Props) {
       });
     } else {
       setVotes(data);
+      setTotalVotes(data.reduce((accum, current) => accum + current.votes, 0));
     }
     setIsLoading(false);
   };
@@ -83,26 +109,11 @@ export default function PollResults({ poll }: Props) {
 
   useEffect(() => {
     if (votes === null) return;
-    setChartData({
-      labels: votes!.map((v) => v.option),
-      datasets: [
-        {
-          hoverOffset: 10,
-          borderWidth: 1,
-          borderRadius: 3,
-          label: '# of votes',
-          data: votes!.map((v) => v.votes),
-          backgroundColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-          ],
-        },
-      ],
-    });
+    setChartData(votes.map((v) => ({
+      id: v.option,
+      label: v.option,
+      value: v.votes,
+    })));
   }, [votes]);
 
   if (isLoading) {
@@ -114,6 +125,55 @@ export default function PollResults({ poll }: Props) {
   }
 
   return (
-    <Pie data={chartData} />
+    <Box width={600} height={600}>
+      <Center>
+        <HStack>
+
+          <Heading size="lg">Results</Heading>
+          <Box paddingTop={1}>
+            {subscription !== null && !closed && (
+              <StatusIndicator active />
+            )}
+            {subscription === null && !closed && (
+              <StatusIndicator active={false} />
+            )}
+          </Box>
+        </HStack>
+      </Center>
+
+      <ResponsivePie
+        data={chartData}
+        margin={{
+          top: 20, right: 100, bottom: 100, left: 100,
+        }}
+        animate
+        sortByValue
+        activeOuterRadiusOffset={5}
+        activeInnerRadiusOffset={5}
+        innerRadius={0.5}
+        padAngle={0.7}
+        cornerRadius={5}
+        borderWidth={1}
+        // Inside Labels
+        enableArcLabels
+        arcLabel={(d) => `${Math.round((d.value / totalVotes) * 100)}% (${d.value})`}
+        arcLabelsSkipAngle={18}
+        arcLabelsTextColor={{
+          from: 'color',
+          modifiers: [
+            [
+              'darker',
+              2,
+            ],
+          ],
+        }}
+        // Outside Labels
+        enableArcLinkLabels
+        arcLinkLabelsTextColor="#333333"
+        arcLinkLabelsThickness={2}
+        arcLinkLabelsColor={{ from: 'color' }}
+        layers={['arcs', 'arcLabels', 'arcLinkLabels', 'legends', CenteredMetric]}
+      />
+    </Box>
   );
 }
