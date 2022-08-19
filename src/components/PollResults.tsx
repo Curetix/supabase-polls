@@ -6,9 +6,10 @@ import {
   Box,
   Center,
   Heading,
-  HStack,
+  HStack, useColorModeValue,
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { Theme as NivoThemeConfig } from '@nivo/core';
 import { DefaultRawDatum, ResponsivePie } from '@nivo/pie';
 import supabase from '../lib/supabase';
 import {
@@ -36,6 +37,7 @@ function CenteredMetric({ dataWithArc, centerX, centerY }: CenteredMetricProps) 
     <text
       x={centerX}
       y={centerY}
+      fill={useColorModeValue('#000', '#FFF')}
       textAnchor="middle"
       dominantBaseline="central"
       style={{
@@ -56,6 +58,16 @@ export default function PollResults({ poll }: Props) {
   const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
   const [chartData, setChartData] = useState<DefaultRawDatum[]>([]);
   const closed = new Date() >= new Date(poll.close_at);
+
+  const nivoTheme: NivoThemeConfig = {
+    textColor: useColorModeValue('#000', '#fff'),
+    tooltip: {
+      container: {
+        background: useColorModeValue('#2D3748', '#CBD5E0'),
+        color: useColorModeValue('#EFEFF1', '#171923'),
+      },
+    },
+  };
 
   const fetchVotes = async () => {
     const { data, error } = await supabase.rpc('count_poll_votes', { poll: poll.id });
@@ -142,6 +154,7 @@ export default function PollResults({ poll }: Props) {
       </Center>
 
       <ResponsivePie
+        theme={nivoTheme}
         data={chartData}
         margin={{
           top: 20, right: 100, bottom: 100, left: 100,
@@ -157,19 +170,19 @@ export default function PollResults({ poll }: Props) {
         // Inside Labels
         enableArcLabels
         arcLabel={(d) => `${Math.round((d.value / totalVotes) * 100)}% (${d.value})`}
-        arcLabelsSkipAngle={18}
+        arcLabelsSkipAngle={20}
         arcLabelsTextColor={{
           from: 'color',
           modifiers: [
             [
               'darker',
-              2,
+              3,
             ],
           ],
         }}
         // Outside Labels
         enableArcLinkLabels
-        arcLinkLabelsTextColor="#333333"
+        arcLinkLabelsSkipAngle={1}
         arcLinkLabelsThickness={2}
         arcLinkLabelsColor={{ from: 'color' }}
         layers={['arcs', 'arcLabels', 'arcLinkLabels', 'legends', CenteredMetric]}
