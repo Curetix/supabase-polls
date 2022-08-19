@@ -57,7 +57,7 @@ export default function Vote() {
   const voteCallback = () => {
     setVotedPolls([...votedPolls, pollId]);
     if (import.meta.env.PROD) {
-      localStorage.setItem('voted-polls', JSON.stringify(votedPolls));
+      localStorage.setItem('voted-polls', JSON.stringify([...votedPolls, pollId]));
     }
   };
 
