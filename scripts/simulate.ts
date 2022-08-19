@@ -4,7 +4,10 @@ import supabase from '../supabase/functions/_shared/supabase.ts';
 import { Poll, Vote } from '../supabase/functions/_shared/types.ts';
 
 const args = parse(Deno.args);
+
 const pollId = args._.length > 0 ? args._[0].toString() : null;
+const votes = 1000;
+const maxDelay = 200;
 
 if (!pollId) {
   console.error('No poll ID provided.');
@@ -21,16 +24,14 @@ if (error || !data || data.length === 0) {
 
 const options = data[0].options;
 
-const votes = 69;
-
 function getRandomInt(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const o = options[getRandomInt(0, options.length - 1)];
 for (let i = 0; i < votes; i++) {
+  const o = options[getRandomInt(0, options.length - 1)];
   console.log(`Placing vote for ${o}`);
   const { error: e } = await supabase.from<Vote>('votes').insert([
     {
@@ -43,5 +44,5 @@ for (let i = 0; i < votes; i++) {
     console.log('Stopping because of unexpected error.');
     break;
   }
-  await new Promise((resolve) => setTimeout(resolve, getRandomInt(10, 500)));
+  await new Promise((resolve) => setTimeout(resolve, getRandomInt(10, maxDelay)));
 }
