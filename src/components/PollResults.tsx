@@ -107,6 +107,7 @@ export default function PollResults({ poll }: Props) {
             const i = n.findIndex((v) => v.option === payload.record.option);
             if (i > -1) n[i].votes += 1;
             setVotes(n);
+            setTotalVotes(n.reduce((accum, current) => accum + current.votes, 0));
           },
         );
       channel.subscribe(() => setSubscription(channel));
