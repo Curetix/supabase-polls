@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/all';
 import supabase from '../lib/supabase';
-import { Poll } from '../lib/types';
+import { Poll } from '../lib/database.types';
 
 export default function Home() {
   const navigate = useNavigate();

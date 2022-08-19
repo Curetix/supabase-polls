@@ -14,7 +14,7 @@ import {
   Center,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
-import { Poll } from '../lib/types';
+import { Poll } from '../lib/database.types';
 import PollVoteForm from '../components/PollVoteForm';
 import PollResults from '../components/PollResults';
 import NotFound from '../components/NotFound';

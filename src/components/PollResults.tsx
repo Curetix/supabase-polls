@@ -14,7 +14,7 @@ import { DefaultRawDatum, ResponsivePie } from '@nivo/pie';
 import supabase from '../lib/supabase';
 import {
   RealtimePayload, Poll, Vote, VoteCount,
-} from '../lib/types';
+} from '../lib/database.types';
 import StatusIndicator from './StatusIndicator';
 
 type Props = {

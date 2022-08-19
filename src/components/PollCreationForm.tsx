@@ -21,7 +21,7 @@ import {
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { addDays } from 'date-fns';
 import supabase from '../lib/supabase';
-import { CreatePollResponse } from '../lib/types';
+import { CreatePollResponse } from '../lib/database.types';
 
 type PollForm = {
   title: string;
