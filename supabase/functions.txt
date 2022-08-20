@@ -1,2 +1,3 @@
 create-poll
 cast-vote
+sentry-tunnel --no-verify-jwt

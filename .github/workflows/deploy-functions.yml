@@ -28,4 +28,4 @@ jobs:
         run: supabase link --project-ref="${{ secrets.SUPABASE_PROJECT }}" --password="${{ secrets.SUPABASE_DATABASE_PASSWORD }}"
 
       - name: Deploy Functions
-        run: for f in $(cat "supabase/functions.txt") ; do supabase functions deploy $f ; done
+        run: while read f ; do supabase functions deploy $f ; done < supabase/functions.txt
