@@ -8,6 +8,7 @@ import {
   VStack,
   CheckboxGroup,
   Checkbox,
+  Heading,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
 import { CastVoteResponse, Poll } from '../lib/database.types';
@@ -71,6 +72,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
 
   return (
     <VStack spacing={5}>
+      <Heading size="lg">Cast your Vote</Heading>
       {poll.allow_multiple_answers ? (
         <CheckboxGroup onChange={setSelectedOptions}>
           <Stack>

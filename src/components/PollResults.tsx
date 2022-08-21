@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
   useToast,
+  useColorModeValue,
   Container,
   Spinner,
   Box,
   Center,
   Heading,
-  HStack, useColorModeValue,
+  HStack,
 } from '@chakra-ui/react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { Theme as NivoThemeConfig } from '@nivo/core';
@@ -141,7 +142,6 @@ export default function PollResults({ poll }: Props) {
     <Box width={600} height={600}>
       <Center>
         <HStack>
-
           <Heading size="lg">Results</Heading>
           <Box paddingTop={1}>
             {subscription !== null && !closed && (

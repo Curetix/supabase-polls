@@ -16,7 +16,7 @@ export default function ColorModeSwitcher(props: Omit<IconButtonProps, 'aria-lab
     <IconButton
       {...props}
       aria-label={`Switch to ${text} mode`}
-      variant="ghost"
+      variant="outline"
       color="current"
       marginLeft="2"
       onClick={toggleColorMode}

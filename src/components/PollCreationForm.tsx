@@ -106,15 +106,9 @@ export default function PollCreationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(createPoll)} noValidate>
+    <form style={{ width: '100%' }} onSubmit={handleSubmit(createPoll)} noValidate>
       <VStack spacing={4}>
-        <Heading
-          fontWeight={600}
-          fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
-          mb={10}
-        >
-          Create a Poll
-        </Heading>
+        <Heading fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}>Create a Poll</Heading>
 
         <FormControl isRequired isInvalid={errors.title !== undefined}>
           <FormLabel>Question</FormLabel>
@@ -152,7 +146,7 @@ export default function PollCreationForm() {
             ))}
           </VStack>
           {errors.options && (
-            <FormErrorMessage>At least one of the choices is invalid.</FormErrorMessage>
+          <FormErrorMessage>At least one of the choices is invalid.</FormErrorMessage>
           )}
         </FormControl>
 

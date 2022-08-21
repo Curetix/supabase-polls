@@ -11,7 +11,7 @@ import {
   Flex,
   Box,
   Spacer,
-  Center,
+  Center, useColorModeValue,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
 import { Poll } from '../lib/database.types';
@@ -79,37 +79,40 @@ export default function Vote() {
 
     return (
       <ScaleFade initialScale={0.9} in={!isLoading}>
-        <Container maxW="container.lg">
-          <Center>
-            <Heading paddingBottom={10} fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}>{poll.title}</Heading>
-          </Center>
+        <Center>
+          <Heading paddingBottom={10} fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}>{poll.title}</Heading>
+        </Center>
 
-          <Flex maxWidth="container.lg" alignItems="center">
-            <Box p={5}>
-              {voted && (
-                <Alert status="warning" variant="solid">
-                  <AlertIcon />
-                  You already voted in this poll.
-                </Alert>
-              )}
+        <Flex alignItems="center">
+          <Box p={5}>
+            {voted && (
+            <Alert status="warning" variant="solid">
+              <AlertIcon />
+              You already voted in this poll.
+            </Alert>
+            )}
 
-              {closed && (
-                <Alert status="warning" variant="solid">
-                  <AlertIcon />
-                  Voting is closed for this poll.
-                </Alert>
-              )}
+            {closed && (
+            <Alert status="warning" variant="solid">
+              <AlertIcon />
+              Voting is closed for this poll.
+            </Alert>
+            )}
 
-              {!voted && !closed && (
-                <PollVoteForm poll={poll} voteCb={voteCallback} />
-              )}
-            </Box>
-            <Spacer />
-            <Box borderWidth="1px" borderRadius="lg" p={3}>
-              <PollResults poll={poll} />
-            </Box>
-          </Flex>
-        </Container>
+            {!voted && !closed && (
+            <PollVoteForm poll={poll} voteCb={voteCallback} />
+            )}
+          </Box>
+          <Spacer />
+          <Box
+            p={3}
+            boxShadow="2xl"
+            rounded="md"
+            bg={useColorModeValue('white', 'gray.800')}
+          >
+            <PollResults poll={poll} />
+          </Box>
+        </Flex>
       </ScaleFade>
     );
   }

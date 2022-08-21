@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  useToast,
   VStack,
   Alert,
   Spinner,
-  useToast,
   Heading,
   Button,
-  Divider,
-  Container,
+  ScaleFade,
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/all';
 import supabase from '../lib/supabase';
@@ -52,44 +51,42 @@ export default function Home() {
   }, []);
 
   return (
-    <Container>
+    <ScaleFade initialScale={0.9} in>
       <VStack spacing={10}>
-        <Heading fontSize={{ base: '3xl' }}>Latest Polls</Heading>
+        <Heading fontSize={{ base: '3xl', sm: '4xl', lg: '5xl' }}>Latest Polls</Heading>
 
         { isLoading && <Spinner size="xl" /> }
         { polls !== null && polls.length > 0 && !isLoading && (
-          <VStack spacing={4}>
-            {polls?.map((p) => (
-              <Button
-                key={p.id}
-                colorScheme="blue"
-                variant="outline"
-                rightIcon={<FaChevronRight />}
-                onClick={() => navigate(`/${p.id}`)}
-              >
-                { p.title }
-              </Button>
-            ))}
-          </VStack>
+        <VStack spacing={4}>
+          {polls?.map((p) => (
+            <Button
+              key={p.id}
+              colorScheme="blue"
+              variant="outline"
+              rightIcon={<FaChevronRight />}
+              onClick={() => navigate(`/${p.id}`)}
+            >
+              { p.title }
+            </Button>
+          ))}
+        </VStack>
         )}
 
         {polls !== null && polls.length === 0 && !isLoading && (
-          <Alert status="info">No polls found.</Alert>
+        <Alert status="info">No polls found.</Alert>
         )}
         {polls === null && !isLoading && (
-          <Alert status="error">Oops, could not load latest polls.</Alert>
+        <Alert status="error">Oops, could not load latest polls.</Alert>
         )}
-
-        <Divider />
 
         <Button
           size="lg"
           colorScheme="green"
           onClick={() => navigate('/create')}
         >
-          Create a Poll
+          Create your own Poll
         </Button>
       </VStack>
-    </Container>
+    </ScaleFade>
   );
 }
