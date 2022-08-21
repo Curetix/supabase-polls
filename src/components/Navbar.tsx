@@ -10,13 +10,8 @@ import ColorModeSwitcher from './ColorModeSwitcher';
 export default function withAction() {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location);
   return (
-    <Flex
-      p={4}
-      paddingTop={8}
-      as="nav"
-    >
+    <Flex p={3} as="nav">
       <Button
         isActive={location.pathname === '/'}
         variant="outline"

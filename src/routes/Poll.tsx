@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
+  useColorModeValue,
   useToast,
   Alert,
   AlertIcon,
@@ -11,7 +12,7 @@ import {
   Flex,
   Box,
   Spacer,
-  Center, useColorModeValue,
+  Center,
 } from '@chakra-ui/react';
 import supabase from '../lib/supabase';
 import { Poll } from '../lib/database.types';
@@ -21,6 +22,7 @@ import NotFound from '../components/NotFound';
 
 export default function Vote() {
   const toast = useToast();
+  const boxBg = useColorModeValue('white', 'gray.800');
   const [isLoading, setIsLoading] = useState(true);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votedPolls, setVotedPolls] = useState<string[]>(
@@ -83,7 +85,7 @@ export default function Vote() {
           <Heading paddingBottom={10} fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}>{poll.title}</Heading>
         </Center>
 
-        <Flex alignItems="center">
+        <Flex alignItems="center" direction={['column', 'column', 'column', 'row']}>
           <Box p={5}>
             {voted && (
             <Alert status="warning" variant="solid">
@@ -108,7 +110,7 @@ export default function Vote() {
             p={3}
             boxShadow="2xl"
             rounded="md"
-            bg={useColorModeValue('white', 'gray.800')}
+            bg={boxBg}
           >
             <PollResults poll={poll} />
           </Box>

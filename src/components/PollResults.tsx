@@ -139,7 +139,7 @@ export default function PollResults({ poll }: Props) {
   }
 
   return (
-    <Box width={600} height={600}>
+    <Box width={['sm', 'md', 'xl']} height={['sm', 'md', 'xl']}>
       <Center>
         <HStack>
           <Heading size="lg">Results</Heading>
@@ -167,7 +167,6 @@ export default function PollResults({ poll }: Props) {
         innerRadius={0.5}
         padAngle={0.7}
         cornerRadius={5}
-        borderWidth={1}
         // Inside Labels
         enableArcLabels
         arcLabel={(d) => `${Math.round((d.value / totalVotes) * 100)}% (${d.value})`}
