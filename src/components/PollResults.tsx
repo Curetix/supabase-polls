@@ -103,7 +103,7 @@ export default function PollResults({ poll }: Props) {
             filter: `poll_id=eq.${poll.id}`,
           },
           (payload: RealtimePayload<Vote>) => {
-            console.log('Received realtime vote');
+            console.log('Received realtime vote:', payload);
             const n = [...votes];
             const i = n.findIndex((v) => v.option === payload.record.option);
             if (i > -1) n[i].votes += 1;
