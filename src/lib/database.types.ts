@@ -99,14 +99,17 @@ export type CastVoteResponse = BaseResponse & {
   vote?: Vote;
 };
 
+// The payload is different between local and hosted Supabase instances
 export type RealtimePayload<T> = {
-  columns: {
+  columns?: {
     name: string,
     type: string,
   }[];
   commit_timestamp: string;
   errors: object | null;
-  record: T;
+  record?: T;
+  old?: T,
+  new?: T,
   schema: string;
   table: string;
   type: 'INSERT' | 'UPDATE' | 'DELETE';
