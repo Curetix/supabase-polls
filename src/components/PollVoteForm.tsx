@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
 import {
-  useToast,
   Button,
+  Checkbox,
+  CheckboxGroup,
+  Heading,
   Radio,
   RadioGroup,
   Stack,
   VStack,
-  CheckboxGroup,
-  Checkbox,
-  Heading,
-} from '@chakra-ui/react';
-import supabase from '../lib/supabase';
-import { CastVoteResponse, Poll } from '../lib/database.types';
+  useToast,
+} from "@chakra-ui/react";
+import React, { useState } from "react";
+
+import { CastVoteResponse, Poll } from "../lib/database.types";
+import supabase from "../lib/supabase";
 
 type Props = {
   poll: Poll;
@@ -21,47 +22,38 @@ type Props = {
 export default function PollVoteForm({ poll, voteCb }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
-  const colors = [
-    'red',
-    'green',
-    'orange',
-    'blue',
-    'purple',
-  ];
+  const colors = ["red", "green", "orange", "blue", "purple"];
 
   async function castVote() {
     setIsLoading(true);
-    const { data, error } = await supabase.functions.invoke<CastVoteResponse>(
-      'cast-vote',
-      {
-        body: {
-          pollId: poll.id,
-          voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
-        },
+    const { data, error } = await supabase.functions.invoke<CastVoteResponse>("cast-vote", {
+      body: {
+        pollId: poll.id,
+        voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
       },
-    );
+    });
     setIsLoading(false);
     if (error !== null || !data) {
       toast({
-        status: 'error',
-        title: 'Error',
-        description: error ? error.message : 'Something went wrong.',
+        status: "error",
+        title: "Error",
+        description: error ? error.message : "Something went wrong.",
         duration: 10000,
         isClosable: true,
       });
     } else if (!data.ok || !data.vote) {
       toast({
-        status: 'error',
-        title: 'Error',
+        status: "error",
+        title: "Error",
         description: data.message,
         duration: 10000,
         isClosable: true,
       });
     } else {
       toast({
-        title: 'Success',
+        title: "Success",
         description: data.message,
         duration: 5000,
         isClosable: true,
@@ -77,12 +69,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
         <CheckboxGroup onChange={setSelectedOptions}>
           <Stack>
             {poll.options.map((option, index) => (
-              <Checkbox
-                colorScheme={colors[index]}
-                size="lg"
-                key={option}
-                value={option}
-              >
+              <Checkbox colorScheme={colors[index]} size="lg" key={option} value={option}>
                 {option}
               </Checkbox>
             ))}
@@ -92,12 +79,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
         <RadioGroup onChange={setSelectedOption}>
           <Stack>
             {poll.options.map((option, index) => (
-              <Radio
-                colorScheme={colors[index]}
-                size="lg"
-                key={option}
-                value={option}
-              >
+              <Radio colorScheme={colors[index]} size="lg" key={option} value={option}>
                 {option}
               </Radio>
             ))}
@@ -110,8 +92,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
         colorScheme="green"
         onClick={() => castVote()}
         isLoading={isLoading}
-        disabled={selectedOption === '' && selectedOptions.length === 0}
-      >
+        disabled={selectedOption === "" && selectedOptions.length === 0}>
         Vote
       </Button>
     </VStack>

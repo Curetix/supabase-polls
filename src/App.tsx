@@ -1,11 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Box, Container, Divider } from '@chakra-ui/react';
-import Navbar from './components/Navbar';
-import Home from './routes/Home';
-import CreatePoll from './routes/CreatePoll';
-import PollVote from './routes/Poll';
-import NotFound from './components/NotFound';
+import { Box, Container, Divider } from "@chakra-ui/react";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+import Navbar from "./components/Navbar";
+import NotFound from "./components/NotFound";
+import CreatePoll from "./routes/CreatePoll";
+import Home from "./routes/Home";
+import PollVote from "./routes/Poll";
 
 function App() {
   return (

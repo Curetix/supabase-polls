@@ -1,6 +1,7 @@
-import React from 'react';
-import { Tooltip } from '@chakra-ui/react';
-import '../assets/indicator.css';
+import { Tooltip } from "@chakra-ui/react";
+import React from "react";
+
+import "../assets/indicator.css";
 
 export default function LiveIndicator({ active }: { active: boolean }) {
   if (active) {

@@ -1,8 +1,6 @@
-import React from 'react';
-import {
-  Box, Flex, Heading, Text,
-} from '@chakra-ui/react';
-import { CloseIcon } from '@chakra-ui/icons';
+import { CloseIcon } from "@chakra-ui/icons";
+import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import React from "react";
 
 export default function NotFound() {
   return (
@@ -16,8 +14,7 @@ export default function NotFound() {
           rounded="50px"
           w="55px"
           h="55px"
-          textAlign="center"
-        >
+          textAlign="center">
           <CloseIcon boxSize="20px" color="white" />
         </Flex>
       </Box>

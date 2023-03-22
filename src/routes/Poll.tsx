@@ -1,54 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import {
-  useColorModeValue,
-  useToast,
   Alert,
   AlertIcon,
+  Box,
+  Center,
   Container,
+  Flex,
   Heading,
   ScaleFade,
-  Spinner,
-  Flex,
-  Box,
   Spacer,
-  Center,
-} from '@chakra-ui/react';
-import supabase from '../lib/supabase';
-import { Poll } from '../lib/database.types';
-import PollVoteForm from '../components/PollVoteForm';
-import PollResults from '../components/PollResults';
-import NotFound from '../components/NotFound';
+  Spinner,
+  useColorModeValue,
+  useToast,
+} from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
+import NotFound from "../components/NotFound";
+import PollResults from "../components/PollResults";
+import PollVoteForm from "../components/PollVoteForm";
+import { Poll } from "../lib/database.types";
+import supabase from "../lib/supabase";
 
 export default function Vote() {
   const toast = useToast();
-  const boxBg = useColorModeValue('white', 'gray.800');
+  const boxBg = useColorModeValue("white", "gray.800");
   const [isLoading, setIsLoading] = useState(true);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [votedPolls, setVotedPolls] = useState<string[]>(
-    JSON.parse(localStorage.getItem('voted-polls') || '[]'),
+    JSON.parse(localStorage.getItem("voted-polls") || "[]"),
   );
   const { pollId } = useParams();
 
   if (!pollId) return <NotFound />;
 
   const fetchPoll = async () => {
-    const { data, error } = await supabase
-      .from('polls')
-      .select('*')
-      .eq('id', pollId);
+    const { data, error } = await supabase.from("polls").select("*").eq("id", pollId);
     if (error) {
       console.log(error);
       toast({
-        status: 'error',
-        title: 'Error',
+        status: "error",
+        title: "Error",
         description: error.message,
       });
     } else if (data === null) {
       toast({
-        status: 'error',
-        title: 'Error',
-        description: 'Something went wrong while loading the poll.',
+        status: "error",
+        title: "Error",
+        description: "Something went wrong while loading the poll.",
       });
     } else {
       setPoll(data[0]);
@@ -59,7 +57,7 @@ export default function Vote() {
   const voteCallback = () => {
     setVotedPolls([...votedPolls, pollId]);
     if (import.meta.env.PROD) {
-      localStorage.setItem('voted-polls', JSON.stringify([...votedPolls, pollId]));
+      localStorage.setItem("voted-polls", JSON.stringify([...votedPolls, pollId]));
     }
   };
 
@@ -82,36 +80,31 @@ export default function Vote() {
     return (
       <ScaleFade initialScale={0.9} in={!isLoading}>
         <Center>
-          <Heading paddingBottom={10} fontSize={{ base: '3xl', sm: '4xl', md: '5xl' }}>{poll.title}</Heading>
+          <Heading paddingBottom={10} fontSize={{ base: "3xl", sm: "4xl", md: "5xl" }}>
+            {poll.title}
+          </Heading>
         </Center>
 
-        <Flex alignItems="center" direction={['column', 'column', 'column', 'row']}>
+        <Flex alignItems="center" direction={["column", "column", "column", "row"]}>
           <Box p={5}>
             {voted && (
-            <Alert status="warning" variant="solid">
-              <AlertIcon />
-              You already voted in this poll.
-            </Alert>
+              <Alert status="warning" variant="solid">
+                <AlertIcon />
+                You already voted in this poll.
+              </Alert>
             )}
 
             {closed && (
-            <Alert status="warning" variant="solid">
-              <AlertIcon />
-              Voting is closed for this poll.
-            </Alert>
+              <Alert status="warning" variant="solid">
+                <AlertIcon />
+                Voting is closed for this poll.
+              </Alert>
             )}
 
-            {!voted && !closed && (
-            <PollVoteForm poll={poll} voteCb={voteCallback} />
-            )}
+            {!voted && !closed && <PollVoteForm poll={poll} voteCb={voteCallback} />}
           </Box>
           <Spacer />
-          <Box
-            p={3}
-            boxShadow="2xl"
-            rounded="md"
-            bg={boxBg}
-          >
+          <Box p={3} boxShadow="2xl" rounded="md" bg={boxBg}>
             <PollResults poll={poll} />
           </Box>
         </Flex>

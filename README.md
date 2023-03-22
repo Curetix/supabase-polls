@@ -12,7 +12,7 @@ This is my first React project (I'm used to Vue), so it will be messy in places.
 
 ## Planned Features
 
-* Add autentication, so users can manage their polls.
+* Add authentication, so users can manage their polls.
 * Bot-protections using Captcha, an IP record table and user sessions.
 * Dunno, maybe more.
 
