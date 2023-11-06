@@ -1,7 +1,6 @@
 import { Container, ScaleFade } from "@chakra-ui/react";
 import React from "react";
-
-import PollCreationForm from "../components/PollCreationForm";
+import PollCreationForm from "@/components/PollCreationForm";
 
 export default function CreatePoll() {
   return (

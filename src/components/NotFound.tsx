@@ -1,6 +1,6 @@
-import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import React from "react";
+import { CloseIcon } from "@chakra-ui/icons";
 
 export default function NotFound() {
   return (

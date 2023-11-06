@@ -1,24 +1,25 @@
-import { AddIcon } from "@chakra-ui/icons";
 import { Button, Flex, Spacer } from "@chakra-ui/react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { AddIcon } from "@chakra-ui/icons";
+import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 
 import ColorModeSwitcher from "./ColorModeSwitcher";
 
 export default function withAction() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const pathname = usePathname();
   return (
     <Flex p={3} as="nav">
-      <Button isActive={location.pathname === "/"} variant="outline" onClick={() => navigate("/")}>
+      <Button as={NextLink} href="/" isActive={pathname === "/"} variant="outline">
         Home
       </Button>
       <Spacer />
       <Button
-        isActive={location.pathname === "/create"}
+        as={NextLink}
+        href="/new"
+        isActive={pathname === "/new"}
         rightIcon={<AddIcon />}
         variant="outline"
-        colorScheme="green"
-        onClick={() => navigate("/create")}>
+        colorScheme="green">
         Create Poll
       </Button>
       <ColorModeSwitcher />

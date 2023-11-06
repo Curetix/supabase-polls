@@ -1,72 +1,27 @@
-import {
-  Box,
-  Center,
-  Container,
-  HStack,
-  Heading,
-  Spinner,
-  useColorModeValue,
-  useToast,
-} from "@chakra-ui/react";
-import { Theme as NivoThemeConfig } from "@nivo/core";
-import { DefaultRawDatum, ResponsivePie } from "@nivo/pie";
-import { RealtimeChannel } from "@supabase/supabase-js";
-import React, { useEffect, useState } from "react";
+import type { EChartsOption } from "echarts";
 
-import { Poll, Vote, VoteCount } from "../lib/database.types";
-import supabase from "../lib/supabase";
+import { Box, Center, Container, Heading, HStack, Spinner, useToast } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import ECharts from "@/components/ECharts";
+import { Poll, VoteCount } from "@/lib/database.types";
+import supabase from "@/lib/supabase";
+import { RealtimeChannel } from "@supabase/supabase-js";
+
 import StatusIndicator from "./StatusIndicator";
 
-type Props = {
+type PollResultsProps = {
   poll: Poll;
 };
 
-type CenteredMetricProps = {
-  dataWithArc: DefaultRawDatum[];
-  centerX: number;
-  centerY: number;
-};
-
-function CenteredMetric({ dataWithArc, centerX, centerY }: CenteredMetricProps) {
-  let total = 0;
-  dataWithArc.forEach((datum) => {
-    total += datum.value;
-  });
-
-  return (
-    <text
-      x={centerX}
-      y={centerY}
-      fill={useColorModeValue("#000", "#FFF")}
-      textAnchor="middle"
-      dominantBaseline="central"
-      style={{
-        fontSize: "48px",
-        fontWeight: 600,
-      }}>
-      {total}
-    </text>
-  );
-}
-
-export default function PollResults({ poll }: Props) {
+export default function PollResults({ poll }: PollResultsProps) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState<VoteCount | null>(null);
   const [totalVotes, setTotalVotes] = useState(0);
   const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
-  const [chartData, setChartData] = useState<DefaultRawDatum[]>([]);
   const closed = new Date() >= new Date(poll.close_at);
 
-  const nivoTheme: NivoThemeConfig = {
-    textColor: useColorModeValue("#000", "#fff"),
-    tooltip: {
-      container: {
-        background: useColorModeValue("#2D3748", "#CBD5E0"),
-        color: useColorModeValue("#EFEFF1", "#171923"),
-      },
-    },
-  };
+  const [chartData, setChartData] = useState<{ name: string; value: number }[]>();
 
   const fetchVotes = async () => {
     const { data, error } = await supabase.rpc("count_poll_votes", { poll: poll.id });
@@ -125,8 +80,7 @@ export default function PollResults({ poll }: Props) {
     if (votes === null) return;
     setChartData(
       votes.map((v) => ({
-        id: v.option,
-        label: v.option,
+        name: v.option,
         value: v.votes,
       })),
     );
@@ -152,36 +106,45 @@ export default function PollResults({ poll }: Props) {
         </HStack>
       </Center>
 
-      <ResponsivePie
-        theme={nivoTheme}
-        data={chartData}
-        margin={{
-          top: 20,
-          right: 100,
-          bottom: 100,
-          left: 100,
+      <ECharts
+        option={{
+          tooltip: {
+            trigger: "none",
+          },
+          legend: {
+            top: "5%",
+            left: "center",
+          },
+          series: [
+            {
+              type: "pie",
+              radius: ["40%", "70%"],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 10,
+                borderColor: "#fff",
+                borderWidth: 2,
+              },
+              label: {
+                show: false,
+                position: "center",
+              },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 40,
+                  fontWeight: "bold",
+                },
+              },
+              labelLine: {
+                show: false,
+              },
+              data: chartData,
+            },
+          ],
         }}
-        animate
-        sortByValue
-        activeOuterRadiusOffset={5}
-        activeInnerRadiusOffset={5}
-        innerRadius={0.5}
-        padAngle={0.7}
-        cornerRadius={5}
-        // Inside Labels
-        enableArcLabels
-        arcLabel={(d) => `${Math.round((d.value / totalVotes) * 100)}% (${d.value})`}
-        arcLabelsSkipAngle={20}
-        arcLabelsTextColor={{
-          from: "color",
-          modifiers: [["darker", 3]],
-        }}
-        // Outside Labels
-        enableArcLinkLabels
-        arcLinkLabelsSkipAngle={1}
-        arcLinkLabelsThickness={2}
-        arcLinkLabelsColor={{ from: "color" }}
-        layers={["arcs", "arcLabels", "arcLinkLabels", "legends", CenteredMetric]}
+        style={{ background: "none" }}
+        theme="dark"
       />
     </Box>
   );

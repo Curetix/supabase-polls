@@ -6,13 +6,12 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-
-import { CastVoteResponse, Poll } from "../lib/database.types";
-import supabase from "../lib/supabase";
+import { CastVoteResponse, Poll } from "@/lib/database.types";
+import supabase from "@/lib/supabase";
 
 type Props = {
   poll: Poll;

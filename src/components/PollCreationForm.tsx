@@ -5,24 +5,23 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Heading,
+  HStack,
   IconButton,
   Input,
   InputGroup,
   InputRightElement,
   Select,
-  VStack,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { addDays } from "date-fns";
 import React, { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
-import { CreatePollResponse } from "../lib/database.types";
-import supabase from "../lib/supabase";
+import { CreatePollResponse } from "@/lib/database.types";
+import supabase from "@/lib/supabase";
+import { addDays } from "date-fns";
+import { useRouter } from "next/navigation";
 
 type PollForm = {
   title: string;
@@ -33,7 +32,7 @@ type PollForm = {
 };
 
 export default function PollCreationForm() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -99,7 +98,7 @@ export default function PollCreationForm() {
         duration: 5000,
         isClosable: true,
       });
-      navigate(`/${data.poll!.id}`);
+      router.push(`/${data.poll!.id}`);
     }
   }
 
