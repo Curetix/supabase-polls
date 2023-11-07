@@ -10,8 +10,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { CastVoteResponse, Poll } from "@/lib/database.types";
 import supabase from "@/lib/supabase";
+import { CastVoteResponse, Poll } from "@/utils/supabase/database.types";
 
 type Props = {
   poll: Poll;

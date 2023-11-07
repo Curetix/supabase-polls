@@ -18,8 +18,8 @@ import {
 import React, { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { CreatePollResponse } from "@/lib/database.types";
 import supabase from "@/lib/supabase";
+import { CreatePollResponse } from "@/utils/supabase/database.types";
 import { addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 

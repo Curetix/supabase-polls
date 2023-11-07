@@ -1,7 +1,7 @@
-import { Alert, Button, Heading, ScaleFade, Spinner, useToast, VStack } from "@chakra-ui/react";
+import { Alert, Button, Heading, ScaleFade, VStack } from "@chakra-ui/react";
 import { FaChevronRight } from "react-icons/fa";
-import { Poll } from "@/lib/database.types";
-import supabase from "@/lib/supabase";
+import { Poll } from "@/types/common";
+import { createClient } from "@/utils/supabase/browser";
 import { GetServerSideProps } from "next";
 import NextLink from "next/link";
 
@@ -10,6 +10,7 @@ type HomePageProps = {
 };
 
 export const getServerSideProps: GetServerSideProps<HomePageProps> = async (context) => {
+  const supabase = createClient();
   const { data: polls, error } = await supabase
     .from("polls")
     .select("*")

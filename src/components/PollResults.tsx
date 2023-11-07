@@ -1,10 +1,8 @@
-import type { EChartsOption } from "echarts";
-
 import { Box, Center, Container, Heading, HStack, Spinner, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import ECharts from "@/components/ECharts";
-import { Poll, VoteCount } from "@/lib/database.types";
-import supabase from "@/lib/supabase";
+import { Poll, VoteCount } from "@/types/common";
+import { createClient } from "@/utils/supabase/browser";
 import { RealtimeChannel } from "@supabase/supabase-js";
 
 import StatusIndicator from "./StatusIndicator";
@@ -12,6 +10,8 @@ import StatusIndicator from "./StatusIndicator";
 type PollResultsProps = {
   poll: Poll;
 };
+
+const supabase = createClient();
 
 export default function PollResults({ poll }: PollResultsProps) {
   const toast = useToast();

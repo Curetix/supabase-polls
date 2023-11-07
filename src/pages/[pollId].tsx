@@ -3,8 +3,8 @@ import { useState } from "react";
 import NotFound from "@/components/NotFound";
 import PollResults from "@/components/PollResults";
 import PollVoteForm from "@/components/PollVoteForm";
-import { Poll, VoteCount } from "@/lib/database.types";
 import supabase from "@/lib/supabase";
+import { Poll, VoteCount } from "@/utils/supabase/database.types";
 import { GetServerSideProps } from "next";
 
 type PollPageProps = {

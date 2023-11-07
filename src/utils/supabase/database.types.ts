@@ -1,31 +1,6 @@
-export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-          extensions?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       polls: {
@@ -59,6 +34,14 @@ export interface Database {
           title?: string;
           user_id?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "polls_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       votes: {
         Row: {
@@ -82,6 +65,20 @@ export interface Database {
           poll_id?: string;
           user_id?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "votes_poll_id_fkey";
+            columns: ["poll_id"];
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "votes_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -116,7 +113,10 @@ export interface Database {
     Tables: {
       buckets: {
         Row: {
+          allowed_mime_types: string[] | null;
+          avif_autodetection: boolean | null;
           created_at: string | null;
+          file_size_limit: number | null;
           id: string;
           name: string;
           owner: string | null;
@@ -124,7 +124,10 @@ export interface Database {
           updated_at: string | null;
         };
         Insert: {
+          allowed_mime_types?: string[] | null;
+          avif_autodetection?: boolean | null;
           created_at?: string | null;
+          file_size_limit?: number | null;
           id: string;
           name: string;
           owner?: string | null;
@@ -132,13 +135,24 @@ export interface Database {
           updated_at?: string | null;
         };
         Update: {
+          allowed_mime_types?: string[] | null;
+          avif_autodetection?: boolean | null;
           created_at?: string | null;
+          file_size_limit?: number | null;
           id?: string;
           name?: string;
           owner?: string | null;
           public?: boolean | null;
           updated_at?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "buckets_owner_fkey";
+            columns: ["owner"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       migrations: {
         Row: {
@@ -159,6 +173,7 @@ export interface Database {
           id?: number;
           name?: string;
         };
+        Relationships: [];
       };
       objects: {
         Row: {
@@ -171,6 +186,7 @@ export interface Database {
           owner: string | null;
           path_tokens: string[] | null;
           updated_at: string | null;
+          version: string | null;
         };
         Insert: {
           bucket_id?: string | null;
@@ -182,6 +198,7 @@ export interface Database {
           owner?: string | null;
           path_tokens?: string[] | null;
           updated_at?: string | null;
+          version?: string | null;
         };
         Update: {
           bucket_id?: string | null;
@@ -193,13 +210,31 @@ export interface Database {
           owner?: string | null;
           path_tokens?: string[] | null;
           updated_at?: string | null;
+          version?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "objects_bucketId_fkey";
+            columns: ["bucket_id"];
+            referencedRelation: "buckets";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      can_insert_object: {
+        Args: {
+          bucketid: string;
+          name: string;
+          owner: string;
+          metadata: Json;
+        };
+        Returns: undefined;
+      };
       extension: {
         Args: {
           name: string;
@@ -216,7 +251,7 @@ export interface Database {
         Args: {
           name: string;
         };
-        Returns: string[];
+        Returns: unknown;
       };
       get_size_by_bucket: {
         Args: Record<PropertyKey, never>;
@@ -254,21 +289,3 @@ export interface Database {
     };
   };
 }
-
-export type Poll = Database["public"]["Tables"]["polls"]["Row"];
-export type Vote = Database["public"]["Tables"]["votes"]["Row"];
-export type VoteCount = Database["public"]["Functions"]["count_poll_votes"]["Returns"];
-
-type BaseResponse = {
-  ok: boolean;
-  message: string;
-};
-
-export type CreatePollResponse = BaseResponse & {
-  validation?: any;
-  poll?: Poll;
-};
-
-export type CastVoteResponse = BaseResponse & {
-  vote?: Vote;
-};
