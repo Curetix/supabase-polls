@@ -1,8 +1,10 @@
 import { ApiResponse, Poll } from "@/types/common";
-import { createClient } from "@/utils/supabase/server";
+import { Database } from "@/types/database";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 const trimString = (u: unknown) => (typeof u === "string" ? u.trim() : u);
 const pollSchema = z
@@ -31,24 +33,20 @@ const pollSchema = z
   .strict();
 
 export type CreatePollRequest = z.infer<typeof pollSchema>;
-export type CreatePollResponse = ApiResponse & {
-  poll?: Poll;
-  validation?: any;
-};
 
-export async function POST(request: NextRequest): Promise<NextResponse<CreatePollResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Poll>>> {
   const inputPoll = await request.json();
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
   // Validate poll according to schema
   const validatedPoll = pollSchema.safeParse(inputPoll);
   if (!validatedPoll.success) {
     console.warn("Poll Input is invalid", validatedPoll.error);
     return NextResponse.json(
       {
-        error: true,
-        message: "Request is invalid.",
-        validation: validatedPoll.error,
+        success: false,
+        error: "Request is invalid.",
+        details: fromZodError(validatedPoll.error).message,
       },
       { status: 400 },
     );
@@ -62,7 +60,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreatePol
   if (userError) {
     console.error("Error during user lookup:", userError);
     return NextResponse.json(
-      { error: true, message: userError.message },
+      { success: false, error: userError.message },
       {
         status: 400,
       },
@@ -84,8 +82,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreatePol
     console.error("Error during poll creation:", data, error);
     return NextResponse.json(
       {
-        error: true,
-        message: error ? error.message : "Something went wrong.",
+        success: false,
+        error: error ? error.message : "Something went wrong.",
       },
       {
         status: 500,
@@ -93,5 +91,5 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreatePol
     );
   }
 
-  return NextResponse.json({ message: "Poll created.", poll: data[0] });
+  return NextResponse.json({ success: true, message: "Poll created.", data: data[0] });
 }

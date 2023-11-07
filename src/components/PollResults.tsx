@@ -1,24 +1,30 @@
-import { Box, Center, Container, Heading, HStack, Spinner, useToast } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Center,
+  Container,
+  Heading,
+  HStack,
+  Spinner,
+  useToast,
+} from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import ECharts from "@/components/ECharts";
 import { Poll, VoteCount } from "@/types/common";
-import { createClient } from "@/utils/supabase/browser";
-import { RealtimeChannel } from "@supabase/supabase-js";
-
-import StatusIndicator from "./StatusIndicator";
+import { Database } from "@/types/database";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 type PollResultsProps = {
   poll: Poll;
 };
 
-const supabase = createClient();
-
 export default function PollResults({ poll }: PollResultsProps) {
   const toast = useToast();
+  const supabase = createClientComponentClient<Database>();
   const [isLoading, setIsLoading] = useState(true);
-  const [votes, setVotes] = useState<VoteCount | null>(null);
+  const [isRealtime, setIsRealtime] = useState(false);
+  const [votes, setVotes] = useState<VoteCount>([]);
   const [totalVotes, setTotalVotes] = useState(0);
-  const [subscription, setSubscription] = useState<RealtimeChannel | null>(null);
   const closed = new Date() >= new Date(poll.close_at);
 
   const [chartData, setChartData] = useState<{ name: string; value: number }[]>();
@@ -41,11 +47,10 @@ export default function PollResults({ poll }: PollResultsProps) {
 
   useEffect(() => {
     fetchVotes().catch(console.error);
-  }, []);
 
-  useEffect(() => {
-    if (votes !== null && subscription === null && !closed) {
-      const channel = supabase.channel("public:votes").on(
+    const channel = supabase
+      .channel("public:votes")
+      .on(
         "postgres_changes",
         {
           event: "INSERT",
@@ -54,30 +59,26 @@ export default function PollResults({ poll }: PollResultsProps) {
           filter: `poll_id=eq.${poll.id}`,
         },
         (payload) => {
-          console.log("Received realtime vote:", payload);
+          console.debug("Received realtime vote:", payload);
           const vote = payload.new;
-          const n = [...votes];
-          const i = n.findIndex((v) => v.option === vote!.option);
-          if (i > -1) n[i].votes += 1;
-          setVotes(n);
-          setTotalVotes(n.reduce((accum, current) => accum + current.votes, 0));
-        },
-      );
-      channel.subscribe(() => setSubscription(channel));
-    }
-  }, [votes]);
 
-  useEffect(
-    () => () => {
-      if (subscription !== null) {
-        supabase.removeChannel(subscription);
-      }
-    },
-    [subscription],
-  );
+          setVotes((votes) => {
+            const n = [...votes];
+            const i = n.findIndex((v) => v.option === vote!.option);
+            if (i > -1) n[i].votes += 1;
+            return n;
+          });
+        },
+      )
+      .subscribe(() => setIsRealtime(true));
+
+    return () => {
+      supabase.removeChannel(channel).then(() => setIsRealtime(false));
+    };
+  }, []);
 
   useEffect(() => {
-    if (votes === null) return;
+    setTotalVotes(votes.reduce((accum, current) => accum + current.votes, 0));
     setChartData(
       votes.map((v) => ({
         name: v.option,
@@ -99,22 +100,24 @@ export default function PollResults({ poll }: PollResultsProps) {
       <Center>
         <HStack>
           <Heading size="lg">Results</Heading>
-          <Box paddingTop={1}>
-            {subscription !== null && !closed && <StatusIndicator active />}
-            {subscription === null && !closed && <StatusIndicator active={false} />}
-          </Box>
+          {isRealtime !== null && !closed && (
+            <Box paddingTop={1}>
+              <Badge colorScheme="green">Realtime</Badge>
+            </Box>
+          )}
         </HStack>
       </Center>
 
       <ECharts
         option={{
           tooltip: {
-            trigger: "none",
+            trigger: "item",
           },
           legend: {
             top: "5%",
             left: "center",
           },
+          backgroundColor: "transparent",
           series: [
             {
               type: "pie",
@@ -143,7 +146,6 @@ export default function PollResults({ poll }: PollResultsProps) {
             },
           ],
         }}
-        style={{ background: "none" }}
         theme="dark"
       />
     </Box>

@@ -19,7 +19,7 @@
     "@emotion/styled": "^11.11.0",
     "@nivo/core": "^0.83.0",
     "@nivo/pie": "^0.83.0",
-    "@supabase/ssr": "^0.0.9",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/supabase-js": "^2.38.4",
     "date-fns": "^2.30.0",
     "echarts": "^5.4.3",
@@ -29,7 +29,8 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
     "react-icons": "^4.11.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.1.0"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",

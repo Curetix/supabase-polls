@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 import {
   Button,
   Checkbox,
@@ -15,11 +14,11 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import supabase from "@/lib/supabase";
-import { CreatePollResponse } from "@/utils/supabase/database.types";
+import { ApiResponse, Poll } from "@/types/common";
+import { fetcher } from "@/utils/fetcher";
 import { addDays } from "date-fns";
 import { useRouter } from "next/navigation";
 
@@ -52,53 +51,38 @@ export default function PollCreationForm() {
 
   async function createPoll(input: any) {
     setIsLoading(true);
-    const { data, error } = await supabase.functions.invoke<CreatePollResponse>("create-poll", {
-      body: {
-        title: input.title,
-        options: input.options.map((o: any) => o.value),
-        is_unlisted: input.isUnlisted,
-        allow_multiple_answers: input.allowMultipleChoices,
-        close_at: input.closeAt,
+    const response = await fetcher<ApiResponse<Poll>>(
+      "/api/polls",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          title: input.title,
+          options: input.options.map((o: any) => o.value),
+          is_unlisted: input.isUnlisted,
+          allow_multiple_answers: input.allowMultipleChoices,
+          close_at: input.closeAt,
+        }),
       },
-    });
+      false,
+    );
     setIsLoading(false);
-    if (error !== null || data === null) {
+    if (!response.success || !response.data) {
       toast({
         status: "error",
         title: "Error",
-        description: error ? error.message : "Something went wrong.",
+        description: response.details || response.error || "Something went wrong.",
         duration: 10000,
         isClosable: true,
       });
       return;
-    }
-    if (!data.ok && data.validation) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const issue of data.validation.issues) {
-        toast({
-          status: "error",
-          title: "Error",
-          description: issue.message,
-          duration: 10000,
-          isClosable: true,
-        });
-      }
-    } else if (!data.ok) {
-      toast({
-        status: "error",
-        title: "Error",
-        description: data.message,
-        duration: 10000,
-        isClosable: true,
-      });
     } else {
       toast({
         title: "Success",
-        description: data.message,
+        description: response.message,
         duration: 5000,
         isClosable: true,
       });
-      router.push(`/${data.poll!.id}`);
+      router.push(`/${response.data.id}`);
     }
   }
 
@@ -135,7 +119,7 @@ export default function PollCreationForm() {
                     colorScheme="red"
                     aria-label="Remove option"
                     icon={<FaMinus />}
-                    disabled={fields.length <= 2}
+                    isDisabled={fields.length <= 2}
                     onClick={() => remove(index)}
                   />
                 </InputRightElement>
@@ -148,7 +132,7 @@ export default function PollCreationForm() {
         </FormControl>
 
         <Button
-          disabled={fields.length >= 5}
+          isDisabled={fields.length >= 5}
           rightIcon={<FaPlus />}
           onClick={() => append({ value: "" })}>
           Add Option

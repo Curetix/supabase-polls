@@ -1,8 +1,10 @@
 import { ApiResponse, Vote } from "@/types/common";
-import { createClient } from "@/utils/supabase/server";
+import { Database } from "@/types/database";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 const trimString = (u: unknown) => (typeof u === "string" ? u.trim() : u);
 const voteSchema = z.object({
@@ -20,13 +22,10 @@ const voteSchema = z.object({
 });
 
 export type CreateVoteRequest = z.infer<typeof voteSchema>;
-type CreateVoteResponse = ApiResponse & {
-  vote?: Vote;
-};
 
-export async function POST(request: NextRequest): Promise<NextResponse<CreateVoteResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Vote>>> {
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
 
   // Validate poll according to schema
   const inputVote = await request.json();
@@ -34,9 +33,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   if (!validatedVote.success) {
     return NextResponse.json(
       {
-        ok: false,
-        message: "Request is invalid.",
-        validation: validatedVote.error,
+        success: false,
+        error: "Invalid request",
+        details: fromZodError(validatedVote.error).message,
       },
       { status: 400 },
     );
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   if (userError) {
     console.error("Error during user lookup:", userError);
     return NextResponse.json(
-      { error: true, message: userError.message },
+      { success: false, error: userError.message },
       {
         status: 400,
       },
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
 
   if (pollError) {
     return NextResponse.json(
-      { error: true, message: pollError.message },
+      { success: false, error: pollError.message },
       {
         status: 500,
       },
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   }
   if (!pollData) {
     return NextResponse.json(
-      { error: true, message: "Poll not found." },
+      { success: false, error: "Poll not found." },
       {
         status: 400,
       },
@@ -87,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   // Check if poll is still open
   if (poll.close_at && new Date() >= new Date(poll.close_at)) {
     return NextResponse.json(
-      { error: true, message: "Voting is closed." },
+      { success: false, error: "Voting is closed." },
       {
         status: 403,
       },
@@ -97,8 +96,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   if (!poll.allow_multiple_answers && voteOptionArray.length > 1) {
     return NextResponse.json(
       {
-        error: true,
-        message: "Poll does not allow multiple answers.",
+        success: false,
+        error: "Poll does not allow multiple answers.",
       },
       { status: 400 },
     );
@@ -107,10 +106,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   if (!voteOptionArray.every((value) => poll.options.includes(value))) {
     return NextResponse.json(
       {
-        error: true,
-        message: poll.allow_multiple_answers
-          ? "At least one option is invalid."
-          : "Invalid option.",
+        success: false,
+        error: poll.allow_multiple_answers ? "At least one option is invalid." : "Invalid option.",
       },
       { status: 400 },
     );
@@ -131,12 +128,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateVot
   if (voteError || !voteData) {
     return NextResponse.json(
       {
-        error: true,
-        message: voteError ? voteError.message : "Something went wrong.",
+        success: false,
+        error: voteError ? voteError.message : "Something went wrong.",
       },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ message: "Vote recorded.", vot: voteData[0] });
+  return NextResponse.json({ success: true, message: "Vote recorded.", data: voteData[0] });
 }

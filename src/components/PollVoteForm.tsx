@@ -10,8 +10,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import supabase from "@/lib/supabase";
-import { CastVoteResponse, Poll } from "@/utils/supabase/database.types";
+import { ApiResponse, Poll, Vote } from "@/types/common";
+import { fetcher } from "@/utils/fetcher";
 
 type Props = {
   poll: Poll;
@@ -27,33 +27,30 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
 
   async function castVote() {
     setIsLoading(true);
-    const { data, error } = await supabase.functions.invoke<CastVoteResponse>("cast-vote", {
-      body: {
-        pollId: poll.id,
-        voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
+    const response = await fetcher<ApiResponse<Vote>>(
+      "/api/votes",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          pollId: poll.id,
+          voteOption: poll.allow_multiple_answers ? selectedOptions : selectedOption,
+        }),
       },
-    });
+      false,
+    );
     setIsLoading(false);
-    if (error !== null || !data) {
+    if (!response.success || !response.data) {
       toast({
         status: "error",
         title: "Error",
-        description: error ? error.message : "Something went wrong.",
-        duration: 10000,
-        isClosable: true,
-      });
-    } else if (!data.ok || !data.vote) {
-      toast({
-        status: "error",
-        title: "Error",
-        description: data.message,
+        description: response.details || response.error || "Something went wrong.",
         duration: 10000,
         isClosable: true,
       });
     } else {
       toast({
         title: "Success",
-        description: data.message,
+        description: response.message,
         duration: 5000,
         isClosable: true,
       });

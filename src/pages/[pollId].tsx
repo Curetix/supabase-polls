@@ -3,8 +3,9 @@ import { useState } from "react";
 import NotFound from "@/components/NotFound";
 import PollResults from "@/components/PollResults";
 import PollVoteForm from "@/components/PollVoteForm";
-import supabase from "@/lib/supabase";
-import { Poll, VoteCount } from "@/utils/supabase/database.types";
+import { Poll } from "@/types/common";
+import { Database } from "@/types/database";
+import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSideProps } from "next";
 
 type PollPageProps = {
@@ -14,6 +15,7 @@ type PollPageProps = {
 
 export const getServerSideProps: GetServerSideProps<PollPageProps> = async (context) => {
   const pollId = context.query.pollId as string;
+  const supabase = createPagesServerClient<Database>(context);
   const { data: polls, error } = await supabase.from("polls").select("*").eq("id", pollId);
 
   if (!polls || error) {
