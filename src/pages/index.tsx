@@ -19,15 +19,9 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async (cont
     .order("created_at", { ascending: false })
     .limit(5);
 
-  if (!polls || error) {
-    return {
-      notFound: true,
-    };
-  }
-
   return {
     props: {
-      polls,
+      polls: polls || [],
     },
   };
 };

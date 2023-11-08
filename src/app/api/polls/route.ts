@@ -1,3 +1,4 @@
+import { createServiceClient } from "@/app/api/supabase.ts";
 import { ApiResponse, Poll } from "@/types/common";
 import { Database } from "@/types/database";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
@@ -32,6 +33,8 @@ const pollSchema = z
   })
   .strict();
 
+const supabaseServiceClient = createServiceClient();
+
 export type CreatePollRequest = z.infer<typeof pollSchema>;
 
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Poll>>> {
@@ -53,14 +56,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   }
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError) {
-    console.error("Error during user lookup:", userError);
+  if (sessionError) {
+    console.error("Error during session lookup:", sessionError);
     return NextResponse.json(
-      { success: false, error: userError.message },
+      { success: false, error: sessionError.message },
       {
         status: 400,
       },
@@ -68,12 +71,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   }
 
   // Create poll
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceClient
     .from("polls")
     .insert([
       {
         ...validatedPoll.data,
-        user_id: user?.id,
+        user_id: session?.user.id,
       },
     ])
     .select();

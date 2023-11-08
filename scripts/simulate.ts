@@ -8,8 +8,9 @@ const supabase = createClient(
 async function run() {
   // @ts-ignore
   const args = Bun.argv;
+  console.log(args);
 
-  const pollId = args._.length > 0 ? args._[0].toString() : null;
+  const pollId = args.length > 2 ? args[2].toString() : null;
   const votes = 1000;
   const maxDelay = 200;
 

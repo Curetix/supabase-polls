@@ -1,3 +1,4 @@
+import { createServiceClient } from "@/app/api/supabase.ts";
 import { ApiResponse, Vote } from "@/types/common";
 import { Database } from "@/types/database";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
@@ -20,6 +21,8 @@ const voteSchema = z.object({
       }),
   ]),
 });
+
+const supabaseServiceClient = createServiceClient();
 
 export type CreateVoteRequest = z.infer<typeof voteSchema>;
 
@@ -44,14 +47,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   const voteOptionArray = Array.isArray(voteOption) ? voteOption : [voteOption];
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError) {
-    console.error("Error during user lookup:", userError);
+  if (sessionError) {
+    console.error("Error during session lookup:", sessionError);
     return NextResponse.json(
-      { success: false, error: userError.message },
+      { success: false, error: sessionError.message },
       {
         status: 400,
       },
@@ -114,13 +117,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   }
 
   // Create vote
-  const { data: voteData, error: voteError } = await supabase
+  const { data: voteData, error: voteError } = await supabaseServiceClient
     .from("votes")
     .insert(
       voteOptionArray.map((option) => ({
         poll_id: pollId,
         option,
-        user_id: user?.id,
+        user_id: session?.user.id,
       })),
     )
     .select();
