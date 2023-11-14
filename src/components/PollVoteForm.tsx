@@ -12,18 +12,20 @@ import {
 import React, { useState } from "react";
 import { ApiResponse, Poll, Vote } from "@/types/common";
 import { fetcher } from "@/utils/fetcher";
+import { votedPollsAtom } from "@/utils/state.ts";
+import { useAtom } from "jotai/index";
 
 type Props = {
   poll: Poll;
-  voteCb: Function;
 };
 
-export default function PollVoteForm({ poll, voteCb }: Props) {
+export default function PollVoteForm({ poll }: Props) {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
-  const colors = ["red", "green", "orange", "blue", "purple"];
+  const [colors] = useState(["red", "green", "orange", "blue", "purple"]);
+  const [votedPolls, setVotedPolls] = useAtom(votedPollsAtom);
 
   async function castVote() {
     setIsLoading(true);
@@ -54,7 +56,7 @@ export default function PollVoteForm({ poll, voteCb }: Props) {
         duration: 5000,
         isClosable: true,
       });
-      voteCb();
+      setVotedPolls([...votedPolls, poll.id]);
     }
   }
 
